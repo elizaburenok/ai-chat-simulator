@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 import './ServiceCard.css';
 
 export interface ServiceCardProps {
@@ -6,8 +7,10 @@ export interface ServiceCardProps {
   title: string;
   /** Card subtitle/description */
   subtitle: string;
-  /** Icon displayed in colored background */
-  icon: React.ReactNode;
+  /** Icon displayed in colored background (ignored when avatarSrc is set) */
+  icon?: React.ReactNode;
+  /** Avatar image source – renders 44×44 image instead of icon */
+  avatarSrc?: string;
   /** Background color for icon container (CSS color value) */
   iconBgColor?: string;
   /** Link href - renders as anchor when provided */
@@ -21,18 +24,11 @@ export interface ServiceCardProps {
 }
 
 function getServiceCardClassNames(props: ServiceCardProps): string {
-  const { className, href } = props;
-  const classes = ['service-card'];
-
-  if (href) {
-    classes.push('service-card--link');
-  }
-
-  if (className) {
-    classes.push(className);
-  }
-
-  return classes.join(' ');
+  return cn(
+    'service-card',
+    props.href && 'service-card--link',
+    props.className
+  );
 }
 
 export const ServiceCard: React.FC<ServiceCardProps> = (props: ServiceCardProps) => {
@@ -40,6 +36,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = (props: ServiceCardProps)
     title,
     subtitle,
     icon,
+    avatarSrc,
     iconBgColor,
     href,
     onClick,
@@ -49,12 +46,24 @@ export const ServiceCard: React.FC<ServiceCardProps> = (props: ServiceCardProps)
 
   const classNames = getServiceCardClassNames(props);
 
-  const iconStyle = iconBgColor ? { backgroundColor: iconBgColor } : undefined;
+  const iconStyle = !avatarSrc && iconBgColor ? { backgroundColor: iconBgColor } : undefined;
+
+  const iconContent = avatarSrc ? (
+    <img
+      src={avatarSrc}
+      alt=""
+      width={44}
+      height={44}
+      className="service-card__avatar"
+    />
+  ) : (
+    icon
+  );
 
   const content = (
     <>
       <div className="service-card__icon-wrapper" style={iconStyle}>
-        {icon}
+        {iconContent}
       </div>
       <div className="service-card__content">
         <h3 className="service-card__title">{title}</h3>

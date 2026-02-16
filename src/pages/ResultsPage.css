@@ -41,6 +41,14 @@
   color: var(--color-primitive-primary);
 }
 
+.results-page__chart {
+  margin-bottom: var(--spacing-8x);
+}
+
+.results-page__chart .results-page__block-title {
+  margin-bottom: var(--spacing-m);
+}
+
 .results-page__block {
   margin-bottom: var(--spacing-8x);
 }

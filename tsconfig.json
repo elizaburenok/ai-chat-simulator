@@ -19,6 +19,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@tokens": ["tokens/index.ts"],
       "@tokens/*": ["tokens/*"]
     }

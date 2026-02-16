@@ -6,6 +6,8 @@
 export interface TopicProgress {
   sessionsPercent: number;
   attemptsCount: number;
+  /** Average score 0–10 for face icon. If undefined, no attempts yet (show Happy). */
+  averageScore?: number;
 }
 
 /** Role and grade IDs that this topic is recommended for. Empty = relevant for all. */
@@ -31,8 +33,8 @@ export interface UserTopicContext {
 
 export const topicsData: Topic[] = [
   { id: 'fund-return', nameRu: 'Возврат средств', descriptionShort: 'Оформление и сроки возврата средств по операциям.', progress: { sessionsPercent: 0, attemptsCount: 0 }, relevance: { roleIds: ['support', 'back-office'], gradeIds: ['junior', 'middle'] } },
-  { id: 'card-block', nameRu: 'Блокировка карты', descriptionShort: 'Временная и постоянная блокировка карты по запросу клиента.', progress: { sessionsPercent: 30, attemptsCount: 3 }, relevance: { roleIds: ['support'], gradeIds: ['junior', 'middle', 'senior'] } },
-  { id: 'credit-limit', nameRu: 'Кредитный лимит', descriptionShort: 'Изменение лимита, условия и документы.', progress: { sessionsPercent: 0, attemptsCount: 0 }, relevance: { roleIds: ['sales', 'support'], gradeIds: ['middle', 'senior'] } },
+  { id: 'card-block', nameRu: 'Блокировка карты', descriptionShort: 'Временная и постоянная блокировка карты по запросу клиента.', progress: { sessionsPercent: 30, attemptsCount: 3, averageScore: 7.2 }, relevance: { roleIds: ['support'], gradeIds: ['junior', 'middle', 'senior'] } },
+  { id: 'credit-limit', nameRu: 'Кредитный лимит', descriptionShort: 'Изменение лимита, условия и документы.', progress: { sessionsPercent: 55, attemptsCount: 5, averageScore: 9 }, relevance: { roleIds: ['sales', 'support'], gradeIds: ['middle', 'senior'] } },
   { id: 'pin-change', nameRu: 'Смена ПИН-кода', descriptionShort: 'Способы смены ПИН-кода в приложении и банкомате.', progress: { sessionsPercent: 0, attemptsCount: 0 }, relevance: { roleIds: ['support'], gradeIds: ['junior'] } },
   { id: 'transfers', nameRu: 'Переводы', descriptionShort: 'Переводы между счетами, другим клиентам, в другие банки.', progress: { sessionsPercent: 0, attemptsCount: 0 }, relevance: { roleIds: ['support', 'back-office'], gradeIds: ['junior', 'middle'] } },
   { id: 'debit-cards', nameRu: 'Дебетовые карты', descriptionShort: 'Выпуск, доставка и обслуживание дебетовых карт.', progress: { sessionsPercent: 0, attemptsCount: 0 }, relevance: { roleIds: ['sales', 'support'], gradeIds: ['junior', 'middle'] } },

@@ -110,18 +110,23 @@
   --font-weight-demi-bold: 600;
   
   --font-size-xs: 12px;
+  --font-size-s: 14px;
   --font-size-m: 16px;
+  --font-size-l: 22px;
   
   --line-height-xs: 15px;
+  --line-height-s: 18px;
   --line-height-m: 20px;
   
   --letter-spacing-xs: 0.12px;
+  --letter-spacing-s: 0.14px;
   --letter-spacing-m: 0.16px;
   
   /* Spacing */
   --spacing-base: 4px;
   --spacing-1x: 4px;
   --spacing-2x: 8px;
+  --spacing-4x: 16px;
   --spacing-6x: 24px;
   --spacing-8x: 32px;
   --spacing-12x: 48px;
@@ -153,6 +158,10 @@
   /* Popup/Primary color (for modal/popup backgrounds) */
   --color-popup-primary: #ffffff;
   
+  /* Shadow - subtle card (Figma Surfaces/Card) */
+  --shadow-card-subtle: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.08);
+
   /* Category colors (for segmented bars) */
   --color-category-sand: #de9c7e;
   --color-category-coral: #e59594;
@@ -160,5 +169,12 @@
   --color-category-orchid: #c799df;
   --color-category-amethyst: #b79fe9;
   --color-category-indigo: #95aee2;
+}
+
+/* Page shell – ensure light background per Figma */
+body {
+  background-color: var(--color-page-primary);
+  color: var(--color-primitive-primary);
+  margin: 0;
 }
 

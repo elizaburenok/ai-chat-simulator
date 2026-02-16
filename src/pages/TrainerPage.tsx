@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getTopicById, getRecommendedTopics, type UserTopicContext } from '../../data/topics';
 import type { Branch, Message, TrainerPhase } from '../types/trainer';
+import { deriveBlockScores, type BlockScores } from '../types/results';
 import { NavigationBar } from '../../components/NavigationBar';
 import { UserInfoWidget } from '../../components/UserInfoWidget';
 import { WelcomeContent } from './WelcomeContent';
@@ -12,6 +13,20 @@ function BackIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M3 6h18v2l-1 14H4L3 8V6zm5 0V4a2 2 0 012-2h4a2 2 0 012 2v2M9 11v6M15 11v6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -39,7 +54,6 @@ function createInitialMessages(sessionId: string): Message[] {
 function getBranchStatusLabel(status: Branch['status']): string {
   switch (status) {
     case 'active':
-    case 'in_progress':
       return 'Активная';
     case 'paused':
       return 'В процессе';
@@ -137,16 +151,18 @@ export function TrainerPage(): React.ReactElement {
 
   const handleFinish = useCallback(() => {
     setGlobalState('load');
+    const overallScore = 85;
+    const blockScores: BlockScores = deriveBlockScores(overallScore);
     if (currentBranchId) {
       setBranches((prev) =>
         prev.map((b) =>
-          b.id === currentBranchId ? { ...b, status: 'completed' as const, score: 85 } : b
+          b.id === currentBranchId ? { ...b, status: 'completed' as const, score: overallScore } : b
         )
       );
     }
     setTimeout(() => {
       setGlobalState('results');
-      navigate('/results');
+      navigate('/results', { state: { blockScores } });
     }, 400);
   }, [currentBranchId, navigate]);
 
@@ -156,16 +172,18 @@ export function TrainerPage(): React.ReactElement {
     );
     if (!confirmed) return;
     setGlobalState('load');
+    const overallScore = 70;
+    const blockScores: BlockScores = deriveBlockScores(overallScore);
     if (currentBranchId) {
       setBranches((prev) =>
         prev.map((b) =>
-          b.id === currentBranchId ? { ...b, status: 'completed' as const, score: 70 } : b
+          b.id === currentBranchId ? { ...b, status: 'completed' as const, score: overallScore } : b
         )
       );
     }
     setTimeout(() => {
       setGlobalState('results');
-      navigate('/results');
+      navigate('/results', { state: { blockScores } });
     }, 400);
   }, [currentBranchId, navigate]);
 
@@ -205,6 +223,11 @@ export function TrainerPage(): React.ReactElement {
       const confirmed = window.confirm(`Удалить сессию «${label}»? Это действие нельзя отменить.`);
       if (!confirmed) return;
 
+      const isCurrentBranch = currentBranchId === branchId;
+      
+      // Calculate remaining branches BEFORE state update to avoid stale closure
+      const remaining = branches.filter((b) => b.id !== branchId);
+
       setBranches((prev) => prev.filter((b) => b.id !== branchId));
       setMessagesByBranch((prev) => {
         const next = { ...prev };
@@ -212,20 +235,25 @@ export function TrainerPage(): React.ReactElement {
         return next;
       });
 
-      if (currentBranchId === branchId) {
-        const remaining = branches.filter((b) => b.id !== branchId);
+      if (isCurrentBranch) {
         if (remaining.length === 0) {
           setCurrentBranchId(null);
           setPhase('welcome');
           setSelectedTopicId(null);
         } else {
-          const nextBranch = remaining[0];
+          const nextActiveOrPaused = remaining.find((b) => b.status === 'active' || b.status === 'paused');
+          const nextBranch = nextActiveOrPaused ?? remaining[0];
           setCurrentBranchId(nextBranch.id);
-          setPhase(nextBranch.status === 'paused' ? 'paused' : 'dialogue');
+          if (nextBranch.status === 'completed') {
+            const blockScores = deriveBlockScores(nextBranch.score ?? 70);
+            navigate('/results', { state: { blockScores } });
+          } else {
+            setPhase(nextBranch.status === 'paused' ? 'paused' : 'dialogue');
+          }
         }
       }
     },
-    [branches, currentBranchId]
+    [branches, currentBranchId, navigate]
   );
 
   const handleBackToWelcome = useCallback(() => {
@@ -264,7 +292,7 @@ export function TrainerPage(): React.ReactElement {
             hasBackButton
             hasTextBlock
             title="Темы"
-            onBackClick={() => {}}
+            onBackClick={() => navigate('/')}
           />
         ) : (
           <>
@@ -320,54 +348,54 @@ export function TrainerPage(): React.ReactElement {
         <div className="trainer-page__content">
           <div className="trainer-page__content-inner">
             {phase === 'welcome' && (
-              <div className="trainer-page__chat-window">
+              <div className="trainer-page__chat-window trainer-page__chat-window--welcome">
                 <WelcomeContent
-                selectedTopicId={selectedTopicId}
-                onSelectTopic={handleSelectTopic}
-                rulesModalOpen={rulesModalOpen}
-                onOpenRules={() => setRulesModalOpen(true)}
-                onCloseRules={() => setRulesModalOpen(false)}
-                recommendedTopics={recommendedTopics}
+                  selectedTopicId={selectedTopicId}
+                  onSelectTopic={handleSelectTopic}
+                  rulesModalOpen={rulesModalOpen}
+                  onOpenRules={() => setRulesModalOpen(true)}
+                  onCloseRules={() => setRulesModalOpen(false)}
+                  recommendedTopics={recommendedTopics}
                 />
               </div>
             )}
 
             {(phase === 'dialogue' || phase === 'paused') && currentBranch && currentTopic && (
               <div className="trainer-page__chat-window">
-              <header className="trainer-page__chat-header">
-                <button
-                  type="button"
-                  className="trainer-page__chat-back"
-                  onClick={handleBackToWelcome}
-                  aria-label="К выбору темы"
-                >
-                  <BackIcon />
-                </button>
-                <h1 className="trainer-page__chat-title">AI-Ассистент</h1>
-                {phase === 'dialogue' && (
+                <header className="trainer-page__chat-header">
                   <button
                     type="button"
-                    className="trainer-page__chat-pause"
-                    onClick={handlePause}
+                    className="trainer-page__chat-back"
+                    onClick={handleBackToWelcome}
+                    aria-label="К выбору темы"
                   >
-                    Пауза
+                    <BackIcon />
                   </button>
-                )}
-              </header>
-              <div className="trainer-page__dialogue-area">
-                <DialogueContent
-                topicId={currentBranch.topicId}
-                topicNameRu={currentTopic.nameRu}
-                messages={currentMessages}
-                isPaused={phase === 'paused'}
-                canFinish={canFinish}
-                onSendMessage={handleSendMessage}
-                onFinish={handleFinish}
-                onFinishNow={handleFinishNow}
-                onResume={handleResume}
-                />
+                  <h1 className="trainer-page__chat-title">AI-Ассистент</h1>
+                  {phase === 'dialogue' && (
+                    <button
+                      type="button"
+                      className="trainer-page__chat-pause"
+                      onClick={handlePause}
+                    >
+                      Пауза
+                    </button>
+                  )}
+                </header>
+                <div className="trainer-page__dialogue-area">
+                  <DialogueContent
+                    topicId={currentBranch.topicId}
+                    topicNameRu={currentTopic.nameRu}
+                    messages={currentMessages}
+                    isPaused={phase === 'paused'}
+                    canFinish={canFinish}
+                    onSendMessage={handleSendMessage}
+                    onFinish={handleFinish}
+                    onFinishNow={handleFinishNow}
+                    onResume={handleResume}
+                  />
+                </div>
               </div>
-            </div>
             )}
           </div>
 

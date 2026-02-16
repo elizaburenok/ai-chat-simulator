@@ -109,7 +109,7 @@ export function DialogueContent({
           value={inputValue}
           onValueChange={setInputValue}
           onSend={handleSend}
-          placeholder="Спросите у AI-Ассистента"
+          placeholder="Написать ответ клиенту"
           disabled={isPaused}
           sendDisabled={isPaused || !inputValue.trim()}
           className="dialogue-content__input-message"

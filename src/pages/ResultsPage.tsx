@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
-import { FeedbackCard } from '../../components/FeedbackCard';
+import { DonutChart } from '../../components/DonutChart';
 import { UserInfoWidget } from '../../components/UserInfoWidget';
+import type { BlockScores } from '../types/results';
 import './ResultsPage.css';
+
+const DEFAULT_BLOCK_SCORES: BlockScores = {
+  block1: 85,
+  block2: 78,
+  block3: 82,
+};
+
+const BLOCK1_LABEL = 'База знаний';
+const BLOCK2_LABEL = 'Общий тон ответов и соответствие Tone of Voice';
+const BLOCK3_LABEL = 'Соблюдение орфографических норм';
 
 const BLOCK1_ITEMS = [
   'База знаний',
@@ -40,7 +51,24 @@ const BLOCK3_ITEMS = [
 
 export function ResultsPage(): React.ReactElement {
   const navigate = useNavigate();
+  const location = useLocation();
   const [analysisError, setAnalysisError] = useState(false);
+
+  const blockScores: BlockScores = (location.state as { blockScores?: BlockScores } | null)
+    ?.blockScores ?? DEFAULT_BLOCK_SCORES;
+
+  const chartData = useMemo(() => {
+    const average = Math.round((blockScores.block1 + blockScores.block2 + blockScores.block3) / 3);
+    return {
+      segments: [
+        { label: BLOCK1_LABEL, value: blockScores.block1, color: 'var(--color-primitive-success)', displayValue: String(blockScores.block1) },
+        { label: BLOCK2_LABEL, value: blockScores.block2, color: 'var(--color-primitive-warning)', displayValue: String(blockScores.block2) },
+        { label: BLOCK3_LABEL, value: blockScores.block3, color: 'var(--color-category-sand)', displayValue: String(blockScores.block3) },
+      ],
+      centerValue: String(average),
+      centerLabel: 'средний балл',
+    };
+  }, [blockScores]);
 
   const handleClose = () => {
     navigate('/');
@@ -71,6 +99,22 @@ export function ResultsPage(): React.ReactElement {
         </>
       ) : (
         <>
+          {/* Results summary with donut chart */}
+          <section className="results-page__chart" aria-labelledby="chart-title">
+            <h2 id="chart-title" className="results-page__block-title">
+              Сводка результатов
+            </h2>
+            <DonutChart
+              segments={chartData.segments}
+              centerValue={chartData.centerValue}
+              centerLabel={chartData.centerLabel}
+              size={160}
+              showLegend
+              legendPosition="below"
+              data-testid="results-donut-chart"
+            />
+          </section>
+
           {/* First block */}
           <section className="results-page__block" aria-labelledby="block1-title">
             <h2 id="block1-title" className="results-page__block-title">
@@ -84,18 +128,6 @@ export function ResultsPage(): React.ReactElement {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="results-page__card">
-              <FeedbackCard
-                name="Сильные стороны и зоны роста"
-                date={new Date()}
-                author="Тренажёр"
-                strengths="Корректное приветствие, соблюдение тона, вежливое обращение."
-                growthZone="Рекомендуется уточнять детали перед предложением решения. Обратить внимание на пунктуацию в сложных предложениях."
-                rating="Хорошо справляется"
-                primaryAction={{ label: 'Закрыть', onClick: handleClose }}
-                secondaryAction={{ label: 'Новая сессия', onClick: handleNewSession }}
-              />
             </div>
           </section>
 
