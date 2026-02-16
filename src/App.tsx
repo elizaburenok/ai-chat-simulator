@@ -5,9 +5,11 @@ import { TrainerPage } from './pages/TrainerPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { InputMessagePlaygroundPage } from './pages/InputMessagePlaygroundPage';
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
 function App(): React.ReactElement {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/trainer" element={<TrainerPage />} />
