@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getTopicById } from '../../data/topics';
+import { getTopicById, getRecommendedTopics, type UserTopicContext } from '../../data/topics';
 import type { Branch, Message, TrainerPhase } from '../types/trainer';
 import { NavigationBar } from '../../components/NavigationBar';
+import { UserInfoWidget } from '../../components/UserInfoWidget';
 import { WelcomeContent } from './WelcomeContent';
 import { DialogueContent } from './DialogueContent';
 import './TrainerPage.css';
@@ -63,7 +64,6 @@ export function TrainerPage(): React.ReactElement {
   const [searchParams] = useSearchParams();
   const topicFromUrl = searchParams.get('topic');
 
-  const [sessionNumber] = useState(1);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
   const [phase, setPhase] = useState<TrainerPhase>('welcome');
@@ -101,6 +101,13 @@ export function TrainerPage(): React.ReactElement {
     },
     [startWithTopic]
   );
+
+  /** User context for topic recommendations. In real app would come from auth/profile. */
+  const userContext: UserTopicContext = useMemo(
+    () => ({ roleId: 'support', gradeId: 'junior' }),
+    []
+  );
+  const recommendedTopics = useMemo(() => getRecommendedTopics(userContext), [userContext]);
 
   const handleSendMessage = useCallback(
     (text: string) => {
@@ -188,6 +195,39 @@ export function TrainerPage(): React.ReactElement {
     }
   }, [branches, navigate]);
 
+  const handleDeleteBranch = useCallback(
+    (e: React.MouseEvent, branchId: string) => {
+      e.stopPropagation();
+      const branch = branches.find((b) => b.id === branchId);
+      if (!branch) return;
+      const topic = getTopicById(branch.topicId);
+      const label = topic?.nameRu ?? branch.topicId;
+      const confirmed = window.confirm(`Удалить сессию «${label}»? Это действие нельзя отменить.`);
+      if (!confirmed) return;
+
+      setBranches((prev) => prev.filter((b) => b.id !== branchId));
+      setMessagesByBranch((prev) => {
+        const next = { ...prev };
+        delete next[branchId];
+        return next;
+      });
+
+      if (currentBranchId === branchId) {
+        const remaining = branches.filter((b) => b.id !== branchId);
+        if (remaining.length === 0) {
+          setCurrentBranchId(null);
+          setPhase('welcome');
+          setSelectedTopicId(null);
+        } else {
+          const nextBranch = remaining[0];
+          setCurrentBranchId(nextBranch.id);
+          setPhase(nextBranch.status === 'paused' ? 'paused' : 'dialogue');
+        }
+      }
+    },
+    [branches, currentBranchId]
+  );
+
   const handleBackToWelcome = useCallback(() => {
     setCurrentBranchId(null);
     setPhase('welcome');
@@ -234,19 +274,32 @@ export function TrainerPage(): React.ReactElement {
               const label = topic?.nameRu ?? branch.topicId;
               const isActive = branch.id === currentBranchId;
               return (
-                <button
+                <div
                   key={branch.id}
-                  type="button"
-                  className={`branch-item ${isActive ? 'branch-item--active' : ''}`}
-                  onClick={() => handleBranchSelect(branch.id)}
+                  className={`branch-item-wrap ${isActive ? 'branch-item-wrap--active' : ''}`}
                 >
-                  <span className="branch-item__label">{label}</span>
-                  <span className="branch-item__meta">{formatBranchDate(branch.createdAt)}</span>
-                  <span className="branch-item__status">{getBranchStatusLabel(branch.status)}</span>
-                  {branch.score != null && (
-                    <span className="branch-item__meta">Оценка: {branch.score}</span>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    className="branch-item"
+                    onClick={() => handleBranchSelect(branch.id)}
+                  >
+                    <span className="branch-item__label">{label}</span>
+                    <span className="branch-item__meta">{formatBranchDate(branch.createdAt)}</span>
+                    <span className="branch-item__status">{getBranchStatusLabel(branch.status)}</span>
+                    {branch.score != null && (
+                      <span className="branch-item__meta">Оценка: {branch.score}</span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="branch-item__delete"
+                    onClick={(e) => handleDeleteBranch(e, branch.id)}
+                    aria-label={`Удалить сессию «${label}»`}
+                    title="Удалить сессию"
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
               );
             })}
             <button
@@ -269,12 +322,12 @@ export function TrainerPage(): React.ReactElement {
             {phase === 'welcome' && (
               <div className="trainer-page__chat-window">
                 <WelcomeContent
-                sessionNumber={sessionNumber}
                 selectedTopicId={selectedTopicId}
                 onSelectTopic={handleSelectTopic}
                 rulesModalOpen={rulesModalOpen}
                 onOpenRules={() => setRulesModalOpen(true)}
                 onCloseRules={() => setRulesModalOpen(false)}
+                recommendedTopics={recommendedTopics}
                 />
               </div>
             )}
@@ -317,6 +370,12 @@ export function TrainerPage(): React.ReactElement {
             </div>
             )}
           </div>
+
+          {phase !== 'welcome' && (
+            <aside className="trainer-page__right" aria-label="Данные пользователя">
+              <UserInfoWidget className="trainer-page__user-widget" />
+            </aside>
+          )}
         </div>
       </main>
     </div>

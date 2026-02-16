@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { FeedbackCard } from '../../components/FeedbackCard';
+import { UserInfoWidget } from '../../components/UserInfoWidget';
 import './ResultsPage.css';
 
 const BLOCK1_ITEMS = [
@@ -55,9 +56,11 @@ export function ResultsPage(): React.ReactElement {
 
   return (
     <div className="results-page">
-      <h1 className="results-page__title">Результаты анализа</h1>
+      <div className="results-page__content">
+        <div className="results-page__main">
+          <h1 className="results-page__title">Результаты анализа</h1>
 
-      {analysisError ? (
+          {analysisError ? (
         <>
           <div className="results-page__error">Попробуйте позже</div>
           <div className="results-page__actions">
@@ -140,6 +143,12 @@ export function ResultsPage(): React.ReactElement {
           </div>
         </>
       )}
+        </div>
+
+        <aside className="results-page__right" aria-label="Данные пользователя">
+          <UserInfoWidget className="results-page__user-widget" />
+        </aside>
+      </div>
     </div>
   );
 }

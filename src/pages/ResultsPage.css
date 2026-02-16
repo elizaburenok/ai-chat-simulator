@@ -3,11 +3,35 @@
  */
 
 .results-page {
-  max-width: 720px;
-  margin: 0 auto;
   padding: var(--spacing-6x);
   font-family: var(--font-family-primary);
   color: var(--color-primitive-primary);
+}
+
+.results-page__content {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-6x);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.results-page__main {
+  flex: 1;
+  min-width: 0;
+  max-width: 720px;
+}
+
+.results-page__right {
+  flex-shrink: 0;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.results-page__user-widget {
+  width: 100%;
 }
 
 .results-page__title {
