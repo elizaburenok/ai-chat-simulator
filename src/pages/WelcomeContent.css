@@ -1,0 +1,81 @@
+/**
+ * Welcome (topic selection) inside chat window. Uses design tokens only.
+ * Layout: scrollable content (header, rules, topic list). Topic click starts session immediately.
+ */
+
+.welcome-content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.welcome-content--chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.welcome-content__scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding-bottom: var(--spacing-m);
+}
+
+.welcome-content__header {
+  margin: 0 0 var(--spacing-6x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
+.welcome-content__rules {
+  margin: 0 0 var(--spacing-2x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-m);
+  color: var(--color-primitive-secondary);
+}
+
+.welcome-content__hint {
+  margin: 0 0 var(--spacing-6x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-m);
+  color: var(--color-primitive-secondary);
+}
+
+.welcome-content__topics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1x);
+}
+
+.welcome-content .topic-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.welcome-content .topic-row--selected .topic-row__cell {
+  background-color: var(--color-container-transparent-1);
+}
+
+.topic-row__progress {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  color: var(--color-primitive-secondary);
+  margin-top: var(--spacing-1x);
+  margin-left: var(--spacing-m);
+  margin-right: var(--spacing-m);
+}
+
+.topic-row__cell {
+  width: 100%;
+}

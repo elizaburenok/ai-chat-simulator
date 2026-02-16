@@ -1,0 +1,192 @@
+/**
+ * Dialogue (training) view. Uses design tokens only.
+ */
+
+.dialogue-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.dialogue-content__messages {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+  padding: var(--spacing-m) 0;
+  min-height: 200px;
+}
+
+.dialogue-content__date-separator {
+  text-align: center;
+  margin: 0 0 var(--spacing-2x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-neutral-4);
+}
+
+.dialogue-content__message {
+  display: flex;
+  gap: var(--spacing-m);
+  max-width: 85%;
+}
+
+.dialogue-content__message--client {
+  align-self: flex-end;
+  flex-direction: row;
+}
+
+.dialogue-content__message--specialist {
+  align-self: flex-start;
+  flex-direction: row;
+}
+
+.dialogue-content__message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-bg-neutral-3);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dialogue-content__message-avatar--ai {
+  background-color: var(--color-bg-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialogue-content__message-avatar-letter {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary-on-inverse);
+}
+
+.dialogue-content__message-body-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.dialogue-content__message-sender {
+  margin: 0 0 var(--spacing-1x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
+.dialogue-content__message-body {
+  padding: var(--spacing-m);
+  border-radius: var(--rounding-3x);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-m);
+  line-height: var(--line-height-m);
+}
+
+.dialogue-content__message--client .dialogue-content__message-body {
+  background-color: var(--color-bg-brand-1);
+  color: var(--color-primitive-primary);
+}
+
+.dialogue-content__message--specialist .dialogue-content__message-body {
+  background-color: var(--color-bg-default);
+  color: var(--color-primitive-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.dialogue-content__message-footer {
+  margin-top: var(--spacing-m);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-m);
+}
+
+.dialogue-content__message-sources {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-m);
+  color: var(--color-primitive-brand);
+  text-decoration: underline;
+}
+
+.dialogue-content__message-sources:hover {
+  color: var(--color-primitive-brand-on-inverse);
+}
+
+.dialogue-content__message-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2x);
+}
+
+.dialogue-content__message-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primitive-neutral-4);
+  border-radius: var(--rounding-2-5x);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.dialogue-content__message-action:hover {
+  color: var(--color-primitive-primary);
+  background-color: var(--color-state-container-transparent-1-active);
+}
+
+.dialogue-content__message-meta {
+  margin-top: var(--spacing-1x);
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-secondary);
+}
+
+.dialogue-content__message--client .dialogue-content__message-meta {
+  text-align: right;
+}
+
+.dialogue-content__input-row {
+  display: flex;
+  gap: var(--spacing-m);
+  padding: var(--spacing-m) 0;
+  border-top: 1px solid var(--color-bg-neutral-2);
+  margin-top: auto;
+}
+
+.dialogue-content__input-message {
+  flex: 1;
+  min-width: 0;
+}
+
+.dialogue-content__finish-actions {
+  display: flex;
+  gap: var(--spacing-m);
+  margin-top: var(--spacing-m);
+}
+
+.dialogue-content--paused .dialogue-content__input-row {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.paused-overlay {
+  padding: var(--spacing-m);
+  background-color: var(--color-bg-neutral-1);
+  border-radius: var(--rounding-2-5x);
+  margin-top: var(--spacing-m);
+}
+
+.paused-overlay__buttons {
+  display: flex;
+  gap: var(--spacing-m);
+  margin-top: var(--spacing-m);
+}

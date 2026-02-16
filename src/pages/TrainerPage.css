@@ -1,0 +1,196 @@
+/**
+ * Trainer (chat) layout. Uses design tokens only.
+ */
+
+.trainer-page {
+  display: flex;
+  min-height: 100vh;
+  font-family: var(--font-family-primary);
+  color: var(--color-primitive-primary);
+  background-color: var(--color-bg-default);
+}
+
+.trainer-page__nav {
+  width: 280px;
+  min-width: 280px;
+  border-right: 1px solid var(--color-bg-neutral-2);
+  background-color: var(--color-bg-default);
+  padding: var(--spacing-6x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+}
+
+.trainer-page__nav-title {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-secondary);
+  padding: 0 var(--spacing-1x);
+}
+
+.trainer-page__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trainer-page__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.trainer-page__content-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Chat window layout: content + fixed input area at bottom */
+.trainer-page__chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--spacing-6x);
+}
+
+.trainer-page__chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+  flex-shrink: 0;
+}
+
+.trainer-page__chat-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primitive-primary);
+  border-radius: var(--rounding-2-5x);
+  transition: background-color 0.15s ease;
+}
+
+.trainer-page__chat-back:hover {
+  background-color: var(--color-state-container-transparent-1-active);
+}
+
+.trainer-page__chat-title {
+  margin: 0;
+  flex: 1;
+  font-family: var(--font-family-primary);
+  font-size: 24px;
+  font-weight: var(--font-weight-demi-bold);
+  line-height: 30px;
+  letter-spacing: 0;
+  color: var(--color-primitive-primary);
+}
+
+.trainer-page__chat-pause {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-1x) var(--spacing-2x);
+  border-radius: var(--rounding-2-5x);
+}
+
+.trainer-page__chat-pause:hover {
+  background-color: var(--color-state-container-transparent-1-active);
+}
+
+.trainer-page__dialogue-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trainer-page__nav-collapsed .trainer-page__nav {
+  width: 56px;
+  min-width: 56px;
+}
+
+.trainer-page__nav-collapsed .trainer-page__nav-title,
+.trainer-page__nav-collapsed .branch-item__label,
+.trainer-page__nav-collapsed .branch-item__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+.branch-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--spacing-m) var(--spacing-1x);
+  border-radius: var(--rounding-2-5x);
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-family-primary);
+  color: var(--color-primitive-primary);
+  transition: background-color 0.15s ease;
+}
+
+.branch-item:hover {
+  background-color: var(--color-state-container-transparent-1-active);
+}
+
+.branch-item--active {
+  background-color: var(--color-container-transparent-1);
+}
+
+.branch-item__label {
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
+.branch-item__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-secondary);
+}
+
+.branch-item__status {
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-brand);
+}
+
+.trainer-page__nav-toggle {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: var(--spacing-1x);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primitive-secondary);
+  border-radius: var(--rounding-2-5x);
+}
+
+.trainer-page__nav-toggle:hover {
+  background-color: var(--color-state-container-transparent-1-active);
+}

@@ -1,0 +1,143 @@
+/**
+ * InputMessage — chat input (Figma node 44:4750)
+ * Exact colors, typography, radius, shadow, spacing from design.
+ * BEM: .input-message, .input-message__inner, .input-message__field, .input-message__suffix, etc.
+ */
+
+/* ---- Layout & container (pill) ---- */
+.input-message {
+  width: 100%;
+  max-width: 100%;
+}
+
+.input-message__inner {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  margin: 0 5px;
+  padding: 12px var(--spacing-m);
+  gap: var(--spacing-2x);
+  background-color: var(--color-bg-default);
+  border-radius: var(--rounding-6x);
+  box-shadow: 0 5px 15px var(--color-container-transparent-1);
+  transition: box-shadow 0.2s ease;
+  will-change: box-shadow;
+}
+
+.input-message__inner:hover {
+  box-shadow: 0 6px 18px var(--color-container-transparent-1);
+}
+
+/* ---- Field ---- */
+/* TTN 400 M: primary font, 16px, 400, line-height 20px, letter-spacing 1px */
+.input-message__field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-m);
+  letter-spacing: 1px;
+  color: var(--color-primitive-primary);
+  padding: 0;
+  margin: 0;
+}
+
+.input-message__field::placeholder {
+  color: var(--color-primitive-neutral-4);
+}
+
+.input-message--disabled .input-message__field {
+  color: var(--color-primitive-neutral-4);
+}
+
+.input-message--disabled .input-message__field::placeholder {
+  color: var(--color-primitive-neutral-3);
+}
+
+/* ---- Suffix (send) ---- */
+.input-message__suffix {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1x);
+  flex-shrink: 0;
+}
+
+/* ---- Send button ---- */
+.input-message__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+  will-change: transform, opacity, background-color;
+}
+
+.input-message__send:not(:disabled) {
+  background-color: var(--color-bg-brand);
+  color: var(--color-primitive-primary-on-inverse);
+}
+
+.input-message__send:hover:not(:disabled) {
+  transform: scale(1.05);
+  background-color: var(--color-primitive-brand-on-inverse);
+}
+
+.input-message__send:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.input-message__send:disabled {
+  background-color: var(--color-primitive-neutral-3);
+  color: var(--color-primitive-primary-on-inverse);
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+/* ---- Responsive breakpoints ---- */
+@media (max-width: 767px) {
+  .input-message__inner {
+    min-height: 48px;
+    padding: var(--spacing-xs) var(--spacing-s) var(--spacing-xs) var(--spacing-m);
+    gap: 6px;
+    border-radius: var(--rounding-6x);
+  }
+
+  .input-message__field {
+    font-size: 15px;
+    line-height: 19px;
+    letter-spacing: 0.94px;
+  }
+
+  .input-message__send {
+    width: 36px;
+    height: 36px;
+  }
+
+  .input-message__send svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .input-message__inner {
+    min-height: 50px;
+    padding: 11px 18px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .input-message__inner {
+    min-height: 52px;
+    padding: 12px var(--spacing-m);
+  }
+}
