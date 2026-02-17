@@ -1,74 +1,72 @@
 import React, { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/Button';
-import { DonutChart } from '../../components/DonutChart';
 import { UserInfoWidget } from '../../components/UserInfoWidget';
+import { getHistoryEntryById } from '../lib/historyStorage';
+import { deriveAnalysisResult, type AnalysisResult, type BlockPoint } from '../types/results';
 import type { BlockScores } from '../types/results';
+import type { Message } from '../types/trainer';
 import './ResultsPage.css';
 
-const DEFAULT_BLOCK_SCORES: BlockScores = {
-  block1: 85,
-  block2: 78,
-  block3: 82,
-};
-
 const BLOCK1_LABEL = 'База знаний';
-const BLOCK2_LABEL = 'Общий тон ответов и соответствие Tone of Voice';
+const BLOCK2_LABEL = 'Общий тон ответов и соответствие tone of voice';
 const BLOCK3_LABEL = 'Соблюдение орфографических норм';
 
-const BLOCK1_ITEMS = [
-  'База знаний',
-  'Tone of Voice',
-  'Редакционная политика',
-  'Сильные стороны и зоны роста',
-  'Рекомендации',
-  'Анализ фактических ошибок',
-];
+function SegmentedProgressBar({ score }: { score: BlockPoint }): React.ReactElement {
+  return (
+    <div className="results-page__segmented-bar" role="progressbar" aria-valuenow={score} aria-valuemin={1} aria-valuemax={5}>
+      {([1, 2, 3, 4, 5] as const).map((point) => (
+        <div
+          key={point}
+          className={`results-page__segment ${point <= score ? 'results-page__segment--filled' : ''}`}
+        />
+      ))}
+    </div>
+  );
+}
 
-const BLOCK2_TITLE = 'Общий тон ответов и соответствие Tone of Voice';
-const BLOCK2_ITEMS = [
-  'Ключевые характеристики',
-  'Стиль текста',
-  'Практика Шаг Вперед',
-  'Лингвистические и стилистические правила',
-  'Рекомендации',
-];
+function resolveResult(
+  locationState: unknown,
+  idFromUrl: string | null
+): { result: AnalysisResult; topicNameRu?: string; transcription?: Message[] } | null {
+  const state = locationState as { historyEntryId?: string; result?: AnalysisResult; blockScores?: BlockScores } | null;
+  const historyId = state?.historyEntryId ?? idFromUrl;
+  if (historyId) {
+    const entry = getHistoryEntryById(historyId);
+    if (entry) {
+      return {
+        result: entry.result,
+        topicNameRu: entry.topicNameRu,
+        transcription: entry.transcription,
+      };
+    }
+  }
+  if (state?.result) return { result: state.result };
+  if (state?.blockScores) {
+    const avg = Math.round((state.blockScores.block1 + state.blockScores.block2 + state.blockScores.block3) / 3);
+    return { result: deriveAnalysisResult(avg) };
+  }
+  return null;
+}
 
-const BLOCK3_TITLE = 'Соблюдение орфографических норм';
-const BLOCK3_ITEMS = [
-  'Соблюдение пунктуационных норм',
-  'Соблюдение синтаксических норм',
-  'Буква "ё"',
-  'Знаки, символы',
-  'Кавычки и тире',
-  'Числа',
-  'Местоимения',
-  'Структурирование и форматирование',
-  'Общее впечатление и оценка',
-  'Пример исправления кавычек',
-  'Оценка',
-];
+function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit' }).format(
+    date instanceof Date ? date : new Date(date)
+  );
+}
 
 export function ResultsPage(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const idFromUrl = searchParams.get('id');
+
   const [analysisError, setAnalysisError] = useState(false);
-
-  const blockScores: BlockScores = (location.state as { blockScores?: BlockScores } | null)
-    ?.blockScores ?? DEFAULT_BLOCK_SCORES;
-
-  const chartData = useMemo(() => {
-    const average = Math.round((blockScores.block1 + blockScores.block2 + blockScores.block3) / 3);
-    return {
-      segments: [
-        { label: BLOCK1_LABEL, value: blockScores.block1, color: 'var(--color-primitive-success)', displayValue: String(blockScores.block1) },
-        { label: BLOCK2_LABEL, value: blockScores.block2, color: 'var(--color-primitive-warning)', displayValue: String(blockScores.block2) },
-        { label: BLOCK3_LABEL, value: blockScores.block3, color: 'var(--color-category-sand)', displayValue: String(blockScores.block3) },
-      ],
-      centerValue: String(average),
-      centerLabel: 'средний балл',
-    };
-  }, [blockScores]);
+  const [showTranscription, setShowTranscription] = useState(false);
+  const resolved = useMemo(
+    () => resolveResult(location.state, idFromUrl),
+    [location.state, idFromUrl]
+  );
 
   const handleClose = () => {
     navigate('/');
@@ -82,88 +80,130 @@ export function ResultsPage(): React.ReactElement {
     setAnalysisError(false);
   };
 
+  const handleHistory = () => {
+    navigate('/history');
+  };
+
+  if (analysisError) {
+    return (
+      <div className="results-page">
+        <div className="results-page__left" aria-hidden="true" />
+        <div className="results-page__content">
+          <div className="results-page__main">
+            <h1 className="results-page__title">Результаты</h1>
+            <div className="results-page__error">Попробуйте позже</div>
+            <div className="results-page__actions">
+              <Button type="Primary" onClick={handleRetry}>
+                Повторить
+              </Button>
+            </div>
+          </div>
+          <aside className="results-page__right" aria-label="Данные пользователя">
+            <UserInfoWidget className="results-page__user-widget" />
+          </aside>
+        </div>
+      </div>
+    );
+  }
+
+  if (!resolved) {
+    return (
+      <div className="results-page">
+        <div className="results-page__left" aria-hidden="true" />
+        <div className="results-page__content">
+          <div className="results-page__main">
+            <h1 className="results-page__title">Результаты</h1>
+            <p className="results-page__empty">Нет данных для отображения. Завершите сессию тренажёра или выберите результат из истории.</p>
+            <div className="results-page__actions">
+              <Button type="Primary" onClick={() => navigate('/trainer')}>
+                К тренажёру
+              </Button>
+              <Button type="Secondary" onClick={handleHistory}>
+                История сессий
+              </Button>
+            </div>
+          </div>
+          <aside className="results-page__right" aria-label="Данные пользователя">
+            <UserInfoWidget className="results-page__user-widget" />
+          </aside>
+        </div>
+      </div>
+    );
+  }
+
+  const { result, topicNameRu, transcription } = resolved;
+
   return (
     <div className="results-page">
+      <div className="results-page__left" aria-hidden="true" />
       <div className="results-page__content">
         <div className="results-page__main">
-          <h1 className="results-page__title">Результаты анализа</h1>
+          <h1 className="results-page__title">Результаты</h1>
+          {topicNameRu && (
+            <p className="results-page__topic" aria-label="Тема">
+              Тема: {topicNameRu}
+            </p>
+          )}
 
-          {analysisError ? (
-        <>
-          <div className="results-page__error">Попробуйте позже</div>
-          <div className="results-page__actions">
-            <Button type="Primary" onClick={handleRetry}>
-              Повторить
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Results summary with donut chart */}
-          <section className="results-page__chart" aria-labelledby="chart-title">
-            <h2 id="chart-title" className="results-page__block-title">
-              Сводка результатов
-            </h2>
-            <DonutChart
-              segments={chartData.segments}
-              centerValue={chartData.centerValue}
-              centerLabel={chartData.centerLabel}
-              size={160}
-              showLegend
-              legendPosition="below"
-              data-testid="results-donut-chart"
-            />
-          </section>
+          <p className="results-page__summary">{result.summary}</p>
 
-          {/* First block */}
-          <section className="results-page__block" aria-labelledby="block1-title">
-            <h2 id="block1-title" className="results-page__block-title">
-              Блок 1
-            </h2>
-            <div className="results-page__block-content">
-              <ul style={{ margin: 0, paddingLeft: 'var(--spacing-6x)' }}>
-                {BLOCK1_ITEMS.map((item) => (
-                  <li key={item} style={{ marginBottom: 'var(--spacing-1x)' }}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          <section className="results-page__criteria">
+            <div className="results-page__block" aria-labelledby="block1-title">
+              <h2 id="block1-title" className="results-page__block-title">
+                {BLOCK1_LABEL}
+              </h2>
+              <SegmentedProgressBar score={result.block1.score} />
+              <p className="results-page__block-description">{result.block1.description}</p>
+            </div>
+
+            <div className="results-page__block" aria-labelledby="block2-title">
+              <h2 id="block2-title" className="results-page__block-title">
+                {BLOCK2_LABEL}
+              </h2>
+              <SegmentedProgressBar score={result.block2.score} />
+              <p className="results-page__block-description">{result.block2.description}</p>
+            </div>
+
+            <div className="results-page__block" aria-labelledby="block3-title">
+              <h2 id="block3-title" className="results-page__block-title">
+                {BLOCK3_LABEL}
+              </h2>
+              <SegmentedProgressBar score={result.block3.score} />
+              <p className="results-page__block-description">{result.block3.description}</p>
             </div>
           </section>
 
-          {/* Second block */}
-          <section className="results-page__block" aria-labelledby="block2-title">
-            <h2 id="block2-title" className="results-page__block-title">
-              {BLOCK2_TITLE}
-            </h2>
-            <div className="results-page__block-content">
-              <ul style={{ margin: 0, paddingLeft: 'var(--spacing-6x)' }}>
-                {BLOCK2_ITEMS.map((item) => (
-                  <li key={item} style={{ marginBottom: 'var(--spacing-1x)' }}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <p>Здесь отображаются ключевые характеристики тона, стиль текста и рекомендации по соответствию Tone of Voice.</p>
-            </div>
-          </section>
-
-          {/* Third block */}
-          <section className="results-page__block" aria-labelledby="block3-title">
-            <h2 id="block3-title" className="results-page__block-title">
-              {BLOCK3_TITLE}
-            </h2>
-            <div className="results-page__block-content">
-              <ul style={{ margin: 0, paddingLeft: 'var(--spacing-6x)' }}>
-                {BLOCK3_ITEMS.map((item) => (
-                  <li key={item} style={{ marginBottom: 'var(--spacing-1x)' }}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <p>Общее впечатление и оценка соблюдения орфографических и пунктуационных норм.</p>
-            </div>
-          </section>
+          {transcription && transcription.length > 0 && (
+            <section className="results-page__transcription" aria-labelledby="transcription-title">
+              <button
+                type="button"
+                id="transcription-title"
+                className="results-page__transcription-toggle"
+                onClick={() => setShowTranscription((s) => !s)}
+                aria-expanded={showTranscription}
+              >
+                {showTranscription ? 'Скрыть диалог' : 'Просмотр диалога'}
+              </button>
+              {showTranscription && (
+                <div className="results-page__transcription-content">
+                  {transcription.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`results-page__transcription-msg results-page__transcription-msg--${msg.role}`}
+                    >
+                      <span className="results-page__transcription-role">
+                        {msg.role === 'client' ? 'Клиент' : 'Специалист'}
+                      </span>
+                      <span className="results-page__transcription-meta">
+                        {formatTime(msg.timestamp)}
+                      </span>
+                      <p className="results-page__transcription-body">{msg.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           <div className="results-page__actions">
             <Button type="Primary" onClick={handleClose} data-testid="results-close">
@@ -172,9 +212,10 @@ export function ResultsPage(): React.ReactElement {
             <Button type="Secondary" onClick={handleNewSession} data-testid="results-new-session">
               Новая сессия
             </Button>
+            <Button type="Secondary" onClick={handleHistory}>
+              История сессий
+            </Button>
           </div>
-        </>
-      )}
         </div>
 
         <aside className="results-page__right" aria-label="Данные пользователя">

@@ -10,27 +10,10 @@
   background-color: var(--color-bg-default);
 }
 
-.trainer-page__nav {
-  position: sticky;
-  left: 0;
-  top: 0;
-  width: 280px;
-  min-width: 280px;
-  border-right: none;
-  background-color: var(--color-bg-default);
-  padding: var(--spacing-6x);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-m);
-  align-self: flex-start;
-}
-
-.trainer-page__nav-title {
-  margin: 0;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-demi-bold);
-  color: var(--color-primitive-secondary);
-  padding: 0 var(--spacing-1x);
+.trainer-page__welcome-nav {
+  flex-shrink: 0;
+  margin-bottom: var(--spacing-m);
+  padding-left: 20px;
 }
 
 .trainer-page__main {
@@ -49,18 +32,36 @@
   gap: var(--spacing-6x);
 }
 
-.trainer-page__content-inner {
+/* Left column: dialogue navigation */
+.trainer-page__content-left {
+  flex-shrink: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Wrapper that takes remaining space and centers the chat; keeps sidebar on the right */
+.trainer-page__content-center {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.trainer-page__content-inner {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
   width: 100%;
+  max-width: var(--content-max-width);
 }
 
-/* Constrain inner width for dialogue; welcome uses --welcome in its own container */
-.trainer-page__content-inner:not(:has(.trainer-page__chat-window--welcome)) {
-  max-width: var(--content-max-width);
+.trainer-page__content-inner:has(.trainer-page__chat-window--welcome) {
+  max-width: 1044px;
 }
 
 .trainer-page__right {
@@ -74,6 +75,11 @@
 
 .trainer-page__user-widget {
   width: 100%;
+}
+
+.trainer-page__finish-action {
+  width: 100%;
+  margin-top: var(--spacing-m);
 }
 
 /* Chat window layout: content + fixed input area at bottom */
@@ -154,131 +160,3 @@
   flex-direction: column;
 }
 
-.trainer-page__nav-collapsed .trainer-page__nav {
-  width: 56px;
-  min-width: 56px;
-}
-
-.trainer-page__nav-collapsed .trainer-page__nav-title,
-.trainer-page__nav-collapsed .branch-item__label,
-.trainer-page__nav-collapsed .branch-item__meta,
-.trainer-page__nav-collapsed .branch-item__status {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 0;
-  padding: 0;
-  opacity: 0;
-}
-
-.trainer-page__nav-collapsed .branch-item__delete {
-  display: none;
-}
-
-.branch-item-wrap {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-1x);
-  width: 100%;
-  border-radius: var(--rounding-2-5x);
-  transition: background-color 0.15s ease;
-}
-
-.branch-item-wrap:hover {
-  background-color: var(--color-state-container-transparent-1-active);
-}
-
-.branch-item-wrap--active .branch-item {
-  background-color: var(--color-container-transparent-1);
-}
-
-.branch-item-wrap--active:hover {
-  background-color: transparent;
-}
-
-.branch-item-wrap--active:hover .branch-item {
-  background-color: var(--color-state-container-transparent-1-active);
-}
-
-.branch-item {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: var(--spacing-m) var(--spacing-1x);
-  border-radius: var(--rounding-2-5x);
-  border: none;
-  background: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: var(--font-family-primary);
-  color: var(--color-primitive-primary);
-  transition: background-color 0.15s ease;
-}
-
-.branch-item:hover {
-  background-color: transparent;
-}
-
-.branch-item-wrap:hover .branch-item:hover {
-  background-color: var(--color-state-container-transparent-1-active);
-}
-
-.branch-item__delete {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--color-primitive-secondary);
-  border-radius: var(--rounding-2-5x);
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.branch-item__delete:hover {
-  color: var(--color-primitive-primary);
-  background-color: var(--color-state-container-transparent-1-active);
-}
-
-.branch-item__delete:focus-visible {
-  outline: 2px solid var(--color-primitive-brand);
-  outline-offset: 2px;
-}
-
-.branch-item__label {
-  font-size: var(--font-size-m);
-  font-weight: var(--font-weight-demi-bold);
-  color: var(--color-primitive-primary);
-}
-
-.branch-item__meta {
-  font-size: var(--font-size-xs);
-  color: var(--color-primitive-secondary);
-}
-
-.branch-item__status {
-  font-size: var(--font-size-xs);
-  color: var(--color-primitive-brand);
-}
-
-.trainer-page__nav-toggle {
-  align-self: flex-start;
-  margin-top: auto;
-  padding: var(--spacing-1x);
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--color-primitive-secondary);
-  border-radius: var(--rounding-2-5x);
-}
-
-.trainer-page__nav-toggle:hover {
-  background-color: var(--color-state-container-transparent-1-active);
-}

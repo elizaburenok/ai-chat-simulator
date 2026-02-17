@@ -1,0 +1,96 @@
+/**
+ * History page. Uses design tokens only.
+ */
+
+.history-page {
+  padding: var(--spacing-6x);
+  font-family: var(--font-family-primary);
+  color: var(--color-primitive-primary);
+}
+
+.history-page__content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.history-page__title {
+  margin: 0 0 var(--spacing-8x);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
+.history-page__empty {
+  margin: 0 0 var(--spacing-6x);
+  font-size: var(--font-size-m);
+  color: var(--color-primitive-secondary);
+}
+
+.history-page__list {
+  list-style: none;
+  margin: 0 0 var(--spacing-8x);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+}
+
+.history-page__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-1x);
+  width: 100%;
+  padding: var(--spacing-m);
+  text-align: left;
+  background-color: var(--color-bg-neutral-1);
+  border: 1px solid var(--color-bg-neutral-2);
+  border-radius: var(--rounding-2-5x);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.history-page__item:hover {
+  background-color: var(--color-bg-neutral-2);
+}
+
+.history-page__item-topic {
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
+.history-page__item-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-primitive-secondary);
+}
+
+.history-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-m);
+  padding-top: var(--spacing-6x);
+  border-top: 1px solid var(--color-bg-neutral-2);
+}
+
+.history-page__back,
+.history-page__trainer {
+  padding: var(--spacing-s) var(--spacing-m);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-s);
+  border-radius: var(--rounding-2-5x);
+  cursor: pointer;
+}
+
+.history-page__back {
+  background-color: transparent;
+  border: 1px solid var(--color-bg-neutral-2);
+  color: var(--color-primitive-primary);
+}
+
+.history-page__trainer {
+  background-color: var(--color-primitive-primary);
+  border: none;
+  color: var(--color-primitive-primary-on-default);
+}

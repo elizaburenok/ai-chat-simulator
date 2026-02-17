@@ -57,6 +57,14 @@ export const mainPageSections: MainPageSection[] = [
         avatarId: 'Avatar-4.svg',
       },
       {
+        id: 'history',
+        title: 'История сессий',
+        subtitle: 'Прошлые результаты и транскрипции диалогов',
+        avatarId: 'Avatar-4.svg',
+        path: '/history',
+        testId: 'history-entry',
+      },
+      {
         id: 'role-showcase',
         title: 'Витрина ролей',
         subtitle: 'Вакансии круга Общение с клиентом',
