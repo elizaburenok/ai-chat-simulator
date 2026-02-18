@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import './InputMessage.css';
 
 export interface InputMessageProps {
@@ -38,17 +38,46 @@ export const InputMessage: React.FC<InputMessageProps> = (props) => {
   const [internalValue, setInternalValue] = useState(defaultValue);
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : internalValue;
-  const hasText = value.trim().length > 0;
+  // Treat value as HTML, determine if there is any visible text content
+  const plainText = value.replace(/<[^>]+>/g, '');
+  const hasText = plainText.trim().length > 0;
   const canSend = hasText && !sendDisabled && !disabled;
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const next = e.target.value;
-      if (!isControlled) setInternalValue(next);
-      onValueChange?.(next);
-    },
-    [isControlled, onValueChange]
-  );
+  const editorRef = useRef<HTMLDivElement | null>(null);
+
+  // Keep the DOM in sync with the React value
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const nextHtml = value || '';
+    if (editor.innerHTML !== nextHtml) {
+      editor.innerHTML = nextHtml;
+    }
+  }, [value]);
+
+  const updateFromEditor = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    // Normalize tags to use <strong>/<em> instead of <b>/<i>
+    let html = editor.innerHTML;
+    html = html
+      .replace(/<b(\s|>)/gi, '<strong$1')
+      .replace(/<\/b>/gi, '</strong>')
+      .replace(/<i(\s|>)/gi, '<em$1')
+      .replace(/<\/i>/gi, '</em>');
+    if (editor.innerHTML !== html) {
+      editor.innerHTML = html;
+    }
+
+    if (!isControlled) {
+      setInternalValue(html);
+    }
+    onValueChange?.(html);
+  }, [isControlled, onValueChange]);
+
+  const handleInput = useCallback(() => {
+    updateFromEditor();
+  }, [updateFromEditor]);
 
   const handleSend = useCallback(() => {
     if (!canSend) return;
@@ -56,13 +85,47 @@ export const InputMessage: React.FC<InputMessageProps> = (props) => {
   }, [canSend, value, onSend]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSend();
       }
     },
     [handleSend]
+  );
+
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
+    // Paste as plain text to avoid bringing arbitrary HTML
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    if (!document || !window.getSelection) return;
+    document.execCommand('insertText', false, text);
+    // execCommand mutates DOM, reflect in state
+    updateFromEditor();
+  }, [updateFromEditor]);
+
+  const applyCommand = useCallback(
+    (command: 'bold' | 'italic' | 'insertUnorderedList' | 'insertOrderedList') => {
+      if (disabled) return;
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      editor.focus();
+      document.execCommand(command, false);
+      updateFromEditor();
+    },
+    [disabled, updateFromEditor]
+  );
+
+  const handleBoldClick = useCallback(() => applyCommand('bold'), [applyCommand]);
+  const handleItalicClick = useCallback(() => applyCommand('italic'), [applyCommand]);
+  const handleBulletClick = useCallback(
+    () => applyCommand('insertUnorderedList'),
+    [applyCommand]
+  );
+  const handleNumberedClick = useCallback(
+    () => applyCommand('insertOrderedList'),
+    [applyCommand]
   );
 
   const showSend = hasText;
@@ -77,29 +140,75 @@ export const InputMessage: React.FC<InputMessageProps> = (props) => {
   return (
     <div className={rootClassName} data-testid={dataTestId}>
       <div className="input-message__inner">
-        <input
-          type="text"
-          className="input-message__field"
-          placeholder={placeholder}
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          disabled={disabled}
-          aria-label="Сообщение"
-        />
+        <div className="input-message__editor-row">
+          <div
+            ref={editorRef}
+            className="input-message__field"
+            contentEditable={!disabled}
+            data-placeholder={placeholder}
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            aria-label="Сообщение"
+            suppressContentEditableWarning
+          />
 
-        <div className="input-message__suffix">
-          {showSend && (
-            <button
-              type="button"
-              className="input-message__send"
-              onClick={handleSend}
-              disabled={!canSend}
-              aria-label="Отправить"
-            >
-              <SendIcon />
-            </button>
-          )}
+          <div className="input-message__suffix">
+            {showSend && (
+              <button
+                type="button"
+                className="input-message__send"
+                onClick={handleSend}
+                disabled={!canSend}
+                aria-label="Отправить"
+              >
+                <SendIcon />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="input-message__toolbar" aria-hidden={disabled}>
+          <button
+            type="button"
+            className="input-message__toolbar-button"
+            onClick={handleBoldClick}
+            onMouseDown={(e) => e.preventDefault()}
+            disabled={disabled}
+            aria-label="Полужирный"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            className="input-message__toolbar-button"
+            onClick={handleItalicClick}
+            onMouseDown={(e) => e.preventDefault()}
+            disabled={disabled}
+            aria-label="Курсив"
+          >
+            I
+          </button>
+          <button
+            type="button"
+            className="input-message__toolbar-button"
+            onClick={handleBulletClick}
+            onMouseDown={(e) => e.preventDefault()}
+            disabled={disabled}
+            aria-label="Маркированный список"
+          >
+            •
+          </button>
+          <button
+            type="button"
+            className="input-message__toolbar-button"
+            onClick={handleNumberedClick}
+            onMouseDown={(e) => e.preventDefault()}
+            disabled={disabled}
+            aria-label="Нумерованный список"
+          >
+            1.
+          </button>
         </div>
       </div>
     </div>

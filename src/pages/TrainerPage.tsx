@@ -1,15 +1,30 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getTopicById, getRecommendedTopics, type UserTopicContext } from '../../data/topics';
+import { completionReward } from '../../data/completionReward';
+import { getTopicById, getRecommendedTopics, topicsData, type UserTopicContext } from '../../data/topics';
 import type { Branch, Message, TrainerPhase } from '../types/trainer';
 import { deriveAnalysisResult } from '../types/results';
 import { saveHistoryEntry } from '../lib/historyStorage';
 import { NavigationBar } from '../../components/NavigationBar';
-import { PageAction } from '../../components/PageAction';
+import { Button } from '../../components/Button';
+import { Cell } from '../../components/Cell';
 import { UserInfoWidget } from '../../components/UserInfoWidget';
+import { Widget } from '../../components/Widget';
 import { WelcomeContent } from './WelcomeContent';
 import { DialogueContent } from './DialogueContent';
+import HappyFaceIcon from '../icons/HappyFace.svg';
+import UnhappyFaceIcon from '../icons/UnhappyFace.svg';
 import './TrainerPage.css';
+
+const RECENT_TOPICS_LIMIT = 5;
+const FACE_SIZE = 34;
+const SCORE_THRESHOLD = 8.5;
+
+function getTopicFaceIcon(topic: { progress: { averageScore?: number } }): string {
+  const avg = topic.progress.averageScore;
+  if (avg !== undefined && avg < SCORE_THRESHOLD) return UnhappyFaceIcon;
+  return HappyFaceIcon;
+}
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -44,6 +59,7 @@ export function TrainerPage(): React.ReactElement {
   const [rulesModalOpen, setRulesModalOpen] = useState(false);
   const [globalState, setGlobalState] = useState<'load' | 'active' | 'paused' | 'results'>('active');
   const [analysisStep, setAnalysisStep] = useState(0);
+  const [timerTick, setTimerTick] = useState(0);
 
   const currentBranch = currentBranchId ? branches.find((b) => b.id === currentBranchId) : null;
   const currentMessages = currentBranchId ? messagesByBranch[currentBranchId] ?? [] : [];
@@ -80,6 +96,11 @@ export function TrainerPage(): React.ReactElement {
     []
   );
   const recommendedTopics = useMemo(() => getRecommendedTopics(userContext), [userContext]);
+
+  const recentTopics = useMemo(
+    () => topicsData.filter((t) => t.progress.sessionsPercent > 0).slice(0, RECENT_TOPICS_LIMIT),
+    []
+  );
 
   const handleSendMessage = useCallback(
     (text: string) => {
@@ -177,6 +198,23 @@ export function TrainerPage(): React.ReactElement {
 
   const canFinish = currentMessages.length >= 2;
 
+  /** Session timer: elapsed seconds since branch creation, formatted MM:SS */
+  const sessionElapsedSeconds =
+    currentBranch?.createdAt != null
+      ? Math.floor((Date.now() - currentBranch.createdAt.getTime()) / 1000)
+      : 0;
+  const sessionTimerFormatted = useMemo(() => {
+    const m = Math.floor(sessionElapsedSeconds / 60);
+    const s = sessionElapsedSeconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }, [sessionElapsedSeconds]);
+
+  useEffect(() => {
+    if (phase !== 'dialogue' && phase !== 'paused' || !currentBranchId) return;
+    const id = setInterval(() => setTimerTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [phase, currentBranchId]);
+
   return (
     <div className="trainer-page">
       {globalState === 'load' && (
@@ -194,7 +232,12 @@ export function TrainerPage(): React.ReactElement {
           aria-live="polite"
           aria-busy="true"
         >
-          <span style={{ color: 'var(--color-primitive-primary-on-inverse)', fontFamily: 'var(--font-family-primary)' }}>
+          <span
+            style={{
+              color: 'var(--color-primitive-primary-on-inverse)',
+              fontFamily: 'var(--font-family-primary)',
+            }}
+          >
             Загрузка…
           </span>
         </div>
@@ -202,35 +245,29 @@ export function TrainerPage(): React.ReactElement {
 
       <main className="trainer-page__main">
         <div className="trainer-page__content">
-          {(phase === 'dialogue' || phase === 'paused') && currentBranch && currentTopic && (
+          {(phase === 'welcome' || phase === 'dialogue' || phase === 'paused') && (
             <div className="trainer-page__content-left" aria-label="Навигация">
-              <NavigationBar
-                hasBackButton
-                hasTextBlock
-                title="Диалог с клиентом"
-                subtitle={currentTopic.nameRu}
-                onBackClick={handleBackToWelcome}
-                hasItems={phase === 'dialogue'}
-                items={
-                  phase === 'dialogue'
-                    ? [{ id: 'pause', label: 'Пауза', onClick: handlePause }]
-                    : []
-                }
-              />
+              {phase === 'welcome' && (
+                <NavigationBar
+                  hasBackButton
+                  hasTextBlock
+                  title="Темы"
+                  onBackClick={() => navigate('/')}
+                />
+              )}
+              {(phase === 'dialogue' || phase === 'paused') && currentBranch && currentTopic && (
+                <NavigationBar
+                  hasBackButton
+                  hasTextBlock
+                  title="Диалог с клиентом"
+                  subtitle={currentTopic.nameRu}
+                  onBackClick={handleBackToWelcome}
+                />
+              )}
             </div>
           )}
           <div className="trainer-page__content-center">
             <div className="trainer-page__content-inner">
-              {phase === 'welcome' && (
-                <div className="trainer-page__welcome-nav">
-                  <NavigationBar
-                    hasBackButton
-                    hasTextBlock
-                    title="Темы"
-                    onBackClick={() => navigate('/')}
-                  />
-                </div>
-              )}
               {phase === 'welcome' && (
                 <div className="trainer-page__chat-window trainer-page__chat-window--welcome">
                   <WelcomeContent
@@ -264,18 +301,83 @@ export function TrainerPage(): React.ReactElement {
             </div>
           </div>
 
-          {phase !== 'welcome' && (
-            <aside className="trainer-page__right" aria-label="Данные пользователя">
-              <UserInfoWidget className="trainer-page__user-widget" />
-              {(phase === 'dialogue' || phase === 'paused') && currentBranch && (
-                <PageAction
-                  title="Завершить диалог"
-                  onClick={handleFinishNow}
-                  className="trainer-page__finish-action"
-                />
-              )}
-            </aside>
-          )}
+          <aside className="trainer-page__right" aria-label={phase === 'welcome' ? 'Недавно открытые темы' : 'Данные пользователя'}>
+            {phase === 'welcome' ? (
+              <>
+                <Widget title="Награда за прохождение" className="trainer-page__reward-widget">
+                  <img
+                    src={completionReward.image}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="trainer-page__reward-image"
+                  />
+                  <p className="trainer-page__reward-description">{completionReward.description}</p>
+                </Widget>
+                {recentTopics.length > 0 && (
+                  <Widget
+                    title="Недавно открытые темы"
+                    footerAction={
+                      <Button type="Transparent" onClick={() => navigate('/history')}>
+                        Показать все
+                      </Button>
+                    }
+                  >
+                    <div className="trainer-page__recent-topics">
+                      {recentTopics.map((topic) => (
+                        <Cell
+                          key={topic.id}
+                          size="M"
+                          variant="default"
+                          label={topic.descriptionShort}
+                          icon={
+                            <img
+                              src={getTopicFaceIcon(topic)}
+                              alt=""
+                              width={FACE_SIZE}
+                              height={FACE_SIZE}
+                              className="trainer-page__topic-avatar"
+                            />
+                          }
+                          onClick={() => handleSelectTopic(topic.id)}
+                          data-testid={`recent-topic-${topic.id}`}
+                        >
+                          {topic.nameRu}
+                        </Cell>
+                      ))}
+                    </div>
+                  </Widget>
+                )}
+              </>
+            ) : (
+              <>
+                {currentBranch && currentTopic && (
+                  <Widget title={currentTopic.nameRu} className="trainer-page__session-widget">
+                    <div className="trainer-page__session-timer" aria-live="polite">
+                      {sessionTimerFormatted}
+                    </div>
+                    <div className="trainer-page__session-actions">
+                      <Button
+                        type="Secondary"
+                        onClick={phase === 'paused' ? handleResume : handlePause}
+                        className="trainer-page__pause-action"
+                      >
+                        {phase === 'paused' ? 'Продолжить диалог' : 'Пауза'}
+                      </Button>
+                      <Button
+                        type="Primary"
+                        onClick={handleFinishNow}
+                        className="trainer-page__finish-action"
+                      >
+                        Завершить
+                      </Button>
+                    </div>
+                  </Widget>
+                )}
+                <UserInfoWidget className="trainer-page__user-widget" />
+              </>
+            )}
+          </aside>
         </div>
       </main>
     </div>

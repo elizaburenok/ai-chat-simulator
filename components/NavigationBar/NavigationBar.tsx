@@ -1,4 +1,5 @@
 import React from 'react';
+import { Cell } from '../Cell/Cell';
 import './NavigationBar.css';
 
 export interface NavigationItem {
@@ -142,18 +143,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = (props: NavigationBar
       {hasItems && items.length > 0 && (
         <div className="navigation-bar__items">
           {items.map((item) => (
-            <button
+            <Cell
               key={item.id}
-              type="button"
-              className={`navigation-bar__item ${
-                item.active ? 'navigation-bar__item--active' : ''
-              } ${item.disabled ? 'navigation-bar__item--disabled' : ''}`}
-              onClick={item.disabled ? undefined : item.onClick}
+              size="M"
+              variant={item.active ? 'primary' : 'default'}
               disabled={item.disabled}
-              aria-label={item.label}
+              onClick={item.disabled ? undefined : item.onClick}
             >
               {item.label}
-            </button>
+            </Cell>
           ))}
         </div>
       )}

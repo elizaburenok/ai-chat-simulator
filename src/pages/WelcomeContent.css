@@ -13,16 +13,16 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  /* Wide enough for 720px main + 300px sidebar + gap */
-  max-width: 1044px;
-  margin: 0 auto;
+  min-width: 0;
   width: 100%;
 }
 
 .welcome-content__scroll {
   flex: 1;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 0;
+  min-width: 0;
   padding-bottom: var(--spacing-m);
   display: flex;
   flex-direction: column;
@@ -31,56 +31,69 @@
 
 @media (min-width: 1100px) {
   .welcome-content__scroll {
-    position: relative;
     flex-direction: row;
     align-items: flex-start;
+    gap: var(--spacing-6x);
   }
 
-  /* Main content: fixed 720px, leave space for sidebar on the right */
+  /* Main content: up to 720px, shrinks when space is tight so search isn't cut */
   .welcome-content__main {
-    width: 720px;
+    min-width: 0;
+    flex: 1 1 0;
     max-width: 720px;
-    flex-shrink: 0;
-    margin-right: calc(300px + var(--spacing-6x));
   }
 
-  /* Right column: fixed 300px, pinned to right edge */
+  /* Right column: fixed 300px, aligned to viewport right */
   .welcome-content__sidebar {
-    position: absolute;
-    right: 0;
-    top: 0;
     width: 300px;
     flex-shrink: 0;
+    padding-right: var(--spacing-m);
     display: flex;
     flex-direction: column;
+    margin-left: auto;
   }
+}
+
+.welcome-content__main {
+  min-width: 0;
+}
+
+.welcome-content__search {
+  margin-bottom: var(--spacing-4x);
 }
 
 .welcome-content__blocks {
   margin-bottom: var(--spacing-6x);
+  min-width: 0;
 }
 
-.welcome-content__recommended {
+/* Recommended block: NavigationBar with brand styling, max 3 topics */
+.welcome-content__recommended-bar {
   padding: var(--spacing-4x);
-  background-color: var(--color-bg-brand-1);
+  background-color: var(--color-container-default);
   border-radius: var(--rounding-3x);
   border: 1px solid var(--color-bg-brand-2);
   margin-bottom: var(--spacing-6x);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.welcome-content__recommended-header {
-  margin: 0 0 var(--spacing-4x);
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-l);
-  font-weight: var(--font-weight-demi-bold);
-  line-height: var(--line-height-m);
+.welcome-content__recommended-bar .navigation-bar__text-block {
+  padding: 0 0 var(--spacing-4x);
+}
+
+.welcome-content__recommended-bar .navigation-bar__title {
   color: var(--color-primitive-primary);
 }
 
-.welcome-content__recommended-topics {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1x);
+.welcome-content__recommended-bar .navigation-bar__items {
+  gap: 0;
+}
+
+.welcome-content__recommended-bar .navigation-bar__items .cell {
+  color: var(--color-primitive-primary);
+  padding: var(--spacing-2x) 0;
 }
 
 .welcome-content__section-header {
@@ -90,6 +103,26 @@
   font-weight: var(--font-weight-demi-bold);
   line-height: var(--line-height-m);
   color: var(--color-primitive-primary);
+}
+
+.welcome-content__topic-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1x);
+  margin-bottom: var(--spacing-6x);
+}
+
+.welcome-content__topic-group:last-child {
+  margin-bottom: 0;
+}
+
+.welcome-content__group-header {
+  margin-bottom: var(--spacing-1x);
+}
+
+.welcome-content__group-header .cell {
+  padding-top: 0;
+  padding-bottom: var(--spacing-2x);
 }
 
 .welcome-content__topics {
@@ -105,6 +138,10 @@
   gap: 0;
 }
 
+.welcome-content .topic-row__cell {
+  transition: background-color 0.2s ease;
+}
+
 .welcome-content .topic-row--selected .topic-row__cell {
   background-color: var(--color-container-transparent-1);
 }
@@ -113,7 +150,7 @@
 .topic-row__cell .cell__icon--left {
   width: 34px;
   height: 34px;
-  padding-right: 12px;
+  padding-right: var(--rounding-3x);
 }
 
 .topic-row__avatar {
@@ -128,7 +165,7 @@
   margin-top: var(--spacing-1x);
   margin-left: var(--spacing-m);
   margin-right: var(--spacing-m);
-  height: 6px;
+  height: var(--rounding-1-5x);
   background-color: var(--color-container-transparent-1);
   border-radius: var(--rounding-1x);
   overflow: hidden;

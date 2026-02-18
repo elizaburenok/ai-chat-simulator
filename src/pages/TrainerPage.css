@@ -8,6 +8,7 @@
   font-family: var(--font-family-primary);
   color: var(--color-primitive-primary);
   background-color: var(--color-bg-default);
+  overflow-x: hidden;
 }
 
 .trainer-page__welcome-nav {
@@ -41,7 +42,7 @@
   min-width: 0;
 }
 
-/* Wrapper that takes remaining space and centers the chat; keeps sidebar on the right */
+/* Wrapper that takes remaining space; welcome layout uses full width so sidebar can sit at viewport right */
 .trainer-page__content-center {
   flex: 1;
   display: flex;
@@ -49,6 +50,10 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+}
+
+.trainer-page__content-center:has(.trainer-page__chat-window--welcome) {
+  justify-content: flex-start;
 }
 
 .trainer-page__content-inner {
@@ -60,8 +65,10 @@
   max-width: var(--content-max-width);
 }
 
+/* Welcome (topic list): use full width so aside can align to viewport right with padding */
 .trainer-page__content-inner:has(.trainer-page__chat-window--welcome) {
-  max-width: 1044px;
+  max-width: none;
+  justify-content: flex-start;
 }
 
 .trainer-page__right {
@@ -71,16 +78,96 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: var(--spacing-6x);
+}
+
+.trainer-page__reward-widget {
+  width: 100%;
+}
+
+.trainer-page__reward-widget .trainer-page__reward-image {
+  display: block;
+  margin-bottom: var(--spacing-m);
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.trainer-page__reward-widget .trainer-page__reward-description {
+  margin: 0;
+  font-size: var(--font-size-s);
+  line-height: var(--line-height-m);
+  color: var(--color-primitive-secondary);
+}
+
+.trainer-page__session-widget {
+  width: 100%;
+  margin-bottom: var(--spacing-6x);
+}
+
+.trainer-page__session-timer {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-demi-bold);
+  line-height: var(--line-height-m);
+  color: var(--color-primitive-primary);
+}
+
+.trainer-page__session-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-s);
+}
+
+.trainer-page__session-actions .trainer-page__pause-action,
+.trainer-page__session-actions .trainer-page__finish-action {
+  width: 100%;
+}
+
+.trainer-page__session-actions .trainer-page__finish-action {
+  margin-top: 0;
 }
 
 .trainer-page__user-widget {
   width: 100%;
 }
 
-.trainer-page__finish-action {
+.trainer-page__aside-footer {
+  margin-top: auto;
+  padding-top: var(--spacing-6x);
   width: 100%;
-  margin-top: var(--spacing-m);
 }
+
+.trainer-page__aside-footer .widget {
+  width: 100%;
+}
+
+.trainer-page__recent-topics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1x);
+}
+
+.trainer-page__topic-avatar {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.trainer-page__recent-topics .cell {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.trainer-page__recent-topics .cell .cell__icon--left {
+  width: 34px;
+  height: 34px;
+  padding-right: var(--rounding-3x);
+}
+
 
 /* Chat window layout: content + fixed input area at bottom */
 .trainer-page__chat-window {
@@ -88,6 +175,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
   max-width: var(--content-max-width);
   width: 100%;
   margin: 0 auto;
@@ -95,9 +183,9 @@
   box-sizing: border-box;
 }
 
-/* Welcome (topic list): allow 720px main + 300px sidebar + gap */
+/* Welcome (topic list): use full width so sidebar aligns to viewport right */
 .trainer-page__chat-window--welcome {
-  max-width: 1044px;
+  max-width: none;
 }
 
 .trainer-page__chat-header {

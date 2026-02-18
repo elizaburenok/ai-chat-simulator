@@ -12,11 +12,12 @@
 
 .input-message__inner {
   display: flex;
-  align-items: center;
-  min-height: 52px;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 72px;
   margin: 0 5px;
-  padding: 12px var(--spacing-m);
-  gap: var(--spacing-2x);
+  padding: 12px var(--spacing-m) 10px var(--spacing-m);
+  gap: 6px;
   background-color: var(--color-bg-default);
   border-radius: var(--rounding-6x);
   box-shadow: 0 5px 15px var(--color-container-transparent-1);
@@ -26,6 +27,53 @@
 
 .input-message__inner:hover {
   box-shadow: 0 6px 18px var(--color-container-transparent-1);
+}
+
+/* ---- Toolbar ---- */
+.input-message__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1x);
+  margin-top: 4px;
+}
+
+.input-message__toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--rounding-3x);
+  border: none;
+  background-color: var(--color-bg-subtle);
+  color: var(--color-primitive-secondary);
+  font-family: var(--font-family-primary);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.input-message__toolbar-button:hover:not(:disabled) {
+  background-color: var(--color-container-transparent-2);
+  color: var(--color-primitive-primary);
+}
+
+.input-message__toolbar-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.input-message__toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Editor row ---- */
+.input-message__editor-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-2x);
 }
 
 /* ---- Field ---- */
@@ -44,10 +92,15 @@
   color: var(--color-primitive-primary);
   padding: 0;
   margin: 0;
+  /* contentEditable caret */
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.input-message__field::placeholder {
+.input-message__field[contenteditable='true']:empty::before {
+  content: attr(data-placeholder);
   color: var(--color-primitive-neutral-4);
+  pointer-events: none;
 }
 
 .input-message--disabled .input-message__field {
@@ -105,9 +158,9 @@
 /* ---- Responsive breakpoints ---- */
 @media (max-width: 767px) {
   .input-message__inner {
-    min-height: 48px;
+    min-height: 60px;
     padding: var(--spacing-xs) var(--spacing-s) var(--spacing-xs) var(--spacing-m);
-    gap: 6px;
+    gap: 4px;
     border-radius: var(--rounding-6x);
   }
 
