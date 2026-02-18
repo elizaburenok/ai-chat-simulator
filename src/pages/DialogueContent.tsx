@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '../../components/Button';
 import { InputMessage } from '../../components/InputMessage';
 import type { Message } from '../types/trainer';
+import ClientAvatar from '../avatar images/Avatar.svg';
 import './DialogueContent.css';
 
 export interface DialogueContentProps {
@@ -83,19 +84,35 @@ export function DialogueContent({
               </p>
             )}
             <div className={`dialogue-content__message dialogue-content__message--${item.msg.role}`}>
+              {item.msg.role === 'client' && (
+                <div className="dialogue-content__message-header">
+                  <div className="dialogue-content__message-header-avatar">
+                    <img
+                      src={ClientAvatar}
+                      alt="Аватар клиента"
+                      width={32}
+                      height={32}
+                    />
+                  </div>
+                  <div className="dialogue-content__message-header-main">
+                    <div className="dialogue-content__message-header-title">Клиент</div>
+                    <div className="dialogue-content__message-header-subtitle">Входящее сообщение</div>
+                  </div>
+                </div>
+              )}
               <div className="dialogue-content__message-body-wrap">
                 <div className="dialogue-content__message-body">
                   {item.msg.content}
-                    {item.msg.role === 'specialist' && (
-                      <div className="dialogue-content__message-footer">
-                        <a href="#sources" className="dialogue-content__message-sources">
-                          Источники
-                        </a>
-                      </div>
-                    )}
+                  {item.msg.role === 'specialist' && (
+                    <div className="dialogue-content__message-footer">
+                      <a href="#sources" className="dialogue-content__message-sources">
+                        Источники
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <div className="dialogue-content__message-meta">
-                  {item.msg.role === 'client' ? 'Клиент · ' : ''}{formatTime(item.msg.timestamp)}
+                  {item.msg.role === 'client' ? '' : ''}{formatTime(item.msg.timestamp)}
                 </div>
               </div>
             </div>

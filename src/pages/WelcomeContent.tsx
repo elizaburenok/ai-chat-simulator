@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Cell } from '../../components/Cell';
-import { NavigationBar } from '../../components/NavigationBar';
+import { Navigator } from '../../components/Navigator';
 import { SearchInput } from '../../components/SearchInput';
 import { topicsData, type Topic } from '../../data/topics';
 import { RulesModal } from '../components/RulesModal';
@@ -148,16 +148,15 @@ export function WelcomeContent({
           </div>
           <div className="welcome-content__blocks">
             {filteredRecommended.length > 0 && (
-              <NavigationBar
-                hasTextBlock
+              <Navigator
                 title="Рекомендовано для вас"
-                hasItems
                 items={filteredRecommended.slice(0, 3).map((topic) => ({
                   id: topic.id,
                   label: topic.nameRu,
-                  onClick: () => onSelectTopic(topic.id),
-                  active: selectedTopicId === topic.id,
                 }))}
+                selectedId={selectedTopicId}
+                buttonLabel=""
+                onSelect={(item) => onSelectTopic(item.id)}
                 className="welcome-content__recommended-bar"
                 data-testid="welcome-recommended-bar"
               />

@@ -5,7 +5,7 @@ import { TrainerPage } from './pages/TrainerPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { InputMessagePlaygroundPage } from './pages/InputMessagePlaygroundPage';
-import { OptionSelectCardPlaygroundPage } from './pages/OptionSelectCardPlaygroundPage';
+import { NavigatorPlaygroundPage } from './pages/NavigatorPlaygroundPage';
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
 
@@ -18,7 +18,7 @@ function App(): React.ReactElement {
         <Route path="/results" element={<ResultsPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/playground/input-message" element={<InputMessagePlaygroundPage />} />
-        <Route path="/playground/option-select-card" element={<OptionSelectCardPlaygroundPage />} />
+        <Route path="/playground/navigator" element={<NavigatorPlaygroundPage />} />
       </Routes>
     </BrowserRouter>
   );

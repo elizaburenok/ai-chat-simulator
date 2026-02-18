@@ -26,9 +26,9 @@
 .widget__title {
   font-family: var(--font-family-primary);
   font-weight: var(--font-weight-demi-bold);
-  font-size: var(--font-size-l);
-  line-height: var(--line-height-m);
-  letter-spacing: var(--letter-spacing-m);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-xl);
+  letter-spacing: 0;
   color: var(--color-primitive-primary);
   margin: 0;
   padding: 0;

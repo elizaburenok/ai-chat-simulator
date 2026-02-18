@@ -45,6 +45,13 @@ export const typography = {
       lineHeight: '15px',
       letterSpacing: '0.12px',
     },
+    'TTN-600-XL-01':{
+      fontFamily: '"TT Norms Tochka Extended", sans-serif',
+      fontWeight: 600,
+      fontSize: '20px',
+      lineHeight: '26px',
+      letterSpacing: '0px',
+    },
     'TTN-400-XS-01': {
       fontFamily: '"TT Norms Tochka Extended", sans-serif',
       fontWeight: 400,

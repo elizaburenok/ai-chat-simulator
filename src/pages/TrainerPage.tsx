@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { completionReward } from '../../data/completionReward';
 import { getTopicById, getRecommendedTopics, topicsData, type UserTopicContext } from '../../data/topics';
 import type { Branch, Message, TrainerPhase } from '../types/trainer';
 import { deriveAnalysisResult } from '../types/results';
+import { loadHistoryEntries } from '../lib/historyStorage';
 import { saveHistoryEntry } from '../lib/historyStorage';
 import { NavigationBar } from '../../components/NavigationBar';
 import { Button } from '../../components/Button';
@@ -15,8 +15,6 @@ import { DialogueContent } from './DialogueContent';
 import HappyFaceIcon from '../icons/HappyFace.svg';
 import UnhappyFaceIcon from '../icons/UnhappyFace.svg';
 import './TrainerPage.css';
-
-const RECENT_TOPICS_LIMIT = 5;
 const FACE_SIZE = 34;
 const SCORE_THRESHOLD = 8.5;
 
@@ -91,16 +89,40 @@ export function TrainerPage(): React.ReactElement {
   );
 
   /** User context for topic recommendations. In real app would come from auth/profile. */
-  const userContext: UserTopicContext = useMemo(
-    () => ({ roleId: 'support', gradeId: 'junior' }),
-    []
-  );
+  const userContext: UserTopicContext = useMemo(() => ({ roleId: 'support', gradeId: 'junior' }), []);
   const recommendedTopics = useMemo(() => getRecommendedTopics(userContext), [userContext]);
 
-  const recentTopics = useMemo(
-    () => topicsData.filter((t) => t.progress.sessionsPercent > 0).slice(0, RECENT_TOPICS_LIMIT),
-    []
-  );
+  const sessionsByTopic = useMemo(() => {
+    const historyEntries = loadHistoryEntries();
+    const byTopic = new Map<
+      string,
+      {
+        topicId: string;
+        topicNameRu: string;
+        count: number;
+      }
+    >();
+
+    historyEntries.forEach((entry) => {
+      const existing = byTopic.get(entry.topicId);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        byTopic.set(entry.topicId, {
+          topicId: entry.topicId,
+          topicNameRu: entry.topicNameRu,
+          count: 1,
+        });
+      }
+    });
+
+    return Array.from(byTopic.values());
+  }, []);
+
+  const formatDialogCount = useCallback((count: number): string => {
+    if (count === 1) return '1 диалог';
+    return `${count} диалога`;
+  }, []);
 
   const handleSendMessage = useCallback(
     (text: string) => {
@@ -304,19 +326,9 @@ export function TrainerPage(): React.ReactElement {
           <aside className="trainer-page__right" aria-label={phase === 'welcome' ? 'Недавно открытые темы' : 'Данные пользователя'}>
             {phase === 'welcome' ? (
               <>
-                <Widget title="Награда за прохождение" className="trainer-page__reward-widget">
-                  <img
-                    src={completionReward.image}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="trainer-page__reward-image"
-                  />
-                  <p className="trainer-page__reward-description">{completionReward.description}</p>
-                </Widget>
-                {recentTopics.length > 0 && (
+                {sessionsByTopic.length > 0 && (
                   <Widget
-                    title="Недавно открытые темы"
+                    title="Ваши диалоги"
                     footerAction={
                       <Button type="Transparent" onClick={() => navigate('/history')}>
                         Показать все
@@ -324,27 +336,31 @@ export function TrainerPage(): React.ReactElement {
                     }
                   >
                     <div className="trainer-page__recent-topics">
-                      {recentTopics.map((topic) => (
-                        <Cell
-                          key={topic.id}
-                          size="M"
-                          variant="default"
-                          label={topic.descriptionShort}
-                          icon={
-                            <img
-                              src={getTopicFaceIcon(topic)}
-                              alt=""
-                              width={FACE_SIZE}
-                              height={FACE_SIZE}
-                              className="trainer-page__topic-avatar"
-                            />
-                          }
-                          onClick={() => handleSelectTopic(topic.id)}
-                          data-testid={`recent-topic-${topic.id}`}
-                        >
-                          {topic.nameRu}
-                        </Cell>
-                      ))}
+                      {sessionsByTopic.map(({ topicId, topicNameRu, count }) => {
+                        const topicMeta = topicsData.find((t) => t.id === topicId);
+                        const faceIcon = topicMeta ? getTopicFaceIcon(topicMeta) : HappyFaceIcon;
+
+                        return (
+                          <Cell
+                            key={topicId}
+                            size="M"
+                            variant="default"
+                            icon={
+                              <img
+                                src={faceIcon}
+                                alt=""
+                                width={FACE_SIZE}
+                                height={FACE_SIZE}
+                                className="trainer-page__topic-avatar"
+                              />
+                            }
+                            onClick={() => handleSelectTopic(topicId)}
+                            data-testid={`recent-topic-${topicId}`}
+                          >
+                            {topicNameRu}, {formatDialogCount(count)}
+                          </Cell>
+                        );
+                      })}
                     </div>
                   </Widget>
                 )}

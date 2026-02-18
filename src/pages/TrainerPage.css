@@ -81,25 +81,6 @@
   gap: var(--spacing-6x);
 }
 
-.trainer-page__reward-widget {
-  width: 100%;
-}
-
-.trainer-page__reward-widget .trainer-page__reward-image {
-  display: block;
-  margin-bottom: var(--spacing-m);
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-}
-
-.trainer-page__reward-widget .trainer-page__reward-description {
-  margin: 0;
-  font-size: var(--font-size-s);
-  line-height: var(--line-height-m);
-  color: var(--color-primitive-secondary);
-}
-
 .trainer-page__session-widget {
   width: 100%;
   margin-bottom: var(--spacing-6x);

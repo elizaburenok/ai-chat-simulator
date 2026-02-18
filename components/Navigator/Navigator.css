@@ -1,13 +1,12 @@
 /**
- * OptionSelectCard — selection card with header, radio list, and action button.
+ * Navigator — selection card with header, radio list, and action button.
  * Values from Figma design (node 85-5956).
  */
 
-.option-select-card {
+.navigator {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 300px;
   padding: var(--spacing-m);
   background-color: var(--color-bg-default);
   border-radius: var(--rounding-3x);
@@ -16,7 +15,7 @@
 }
 
 /* Header: title + chevron */
-.option-select-card__header {
+.navigator__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,25 +24,25 @@
   cursor: default;
 }
 
-.option-select-card__header[role="button"] {
+.navigator__header[role="button"] {
   cursor: pointer;
   transition: opacity 0.2s ease;
   will-change: opacity;
 }
 
-.option-select-card__header[role="button"]:hover {
+.navigator__header[role="button"]:hover {
   opacity: 0.85;
 }
 
-.option-select-card__title {
-  font-size: var(--font-size-l);
+.navigator__title {
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-demi-bold);
-  line-height: 26px;
+  line-height: var(--line-height-xl);
   letter-spacing: 0;
   color: var(--color-primitive-primary);
 }
 
-.option-select-card__chevron {
+.navigator__chevron {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,24 +50,24 @@
   flex-shrink: 0;
 }
 
-.option-select-card__chevron-icon {
+.navigator__chevron-icon {
   transition: transform 0.2s ease;
   will-change: transform;
 }
 
-.option-select-card__header[role="button"]:hover .option-select-card__chevron-icon {
+.navigator__header[role="button"]:hover .navigator__chevron-icon {
   transform: translateX(2px);
 }
 
 /* List of options */
-.option-select-card__list {
+.navigator__list {
   display: flex;
   flex-direction: column;
   gap: 0;
   margin-bottom: var(--spacing-4x);
 }
 
-.option-select-card__row {
+.navigator__row {
   display: flex;
   align-items: center;
   gap: var(--rounding-3x);
@@ -82,21 +81,21 @@
   padding-right: var(--spacing-1x);
 }
 
-.option-select-card__row:hover {
+.navigator__row:hover {
   background-color: var(--color-container-transparent-1);
 }
 
-.option-select-card__row[aria-disabled="true"] {
+.navigator__row[aria-disabled="true"] {
   cursor: default;
   opacity: 0.6;
 }
 
-.option-select-card__row[aria-disabled="true"]:hover {
+.navigator__row[aria-disabled="true"]:hover {
   background-color: transparent;
 }
 
 /* Avatar circle */
-.option-select-card__avatar {
+.navigator__avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -106,14 +105,14 @@
   flex-shrink: 0;
 }
 
-.option-select-card__avatar-letter {
+.navigator__avatar-letter {
   font-size: var(--font-size-m);
   font-weight: var(--font-weight-demi-bold);
   line-height: 1;
 }
 
 /* Label */
-.option-select-card__label {
+.navigator__label {
   flex: 1;
   min-width: 0;
   font-size: var(--font-size-m);
@@ -123,43 +122,8 @@
   color: var(--color-primitive-primary);
 }
 
-/* Radio circle */
-.option-select-card__radio {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-primitive-neutral-3);
-  background-color: var(--color-bg-default);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  will-change: border-color, background-color;
-}
-
-.option-select-card__row:hover .option-select-card__radio:not(.option-select-card__radio--selected):not(.option-select-card__radio--disabled) {
-  border-color: var(--color-primitive-neutral-4);
-}
-
-.option-select-card__radio--selected {
-  border-color: var(--color-primitive-brand);
-  background-color: var(--color-primitive-brand);
-}
-
-.option-select-card__radio-dot {
-  width: var(--spacing-2x);
-  height: var(--spacing-2x);
-  border-radius: 50%;
-  background-color: var(--color-bg-default);
-}
-
-.option-select-card__radio--disabled {
-  opacity: 0.5;
-}
-
 /* Bottom button */
-.option-select-card__button {
+.navigator__button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,38 +144,36 @@
   will-change: background-color, transform, opacity;
 }
 
-.option-select-card__button:hover {
+.navigator__button:hover {
   background-color: var(--color-bg-neutral-3);
 }
 
-.option-select-card__button:active {
+.navigator__button:active {
   transform: scale(0.98);
 }
 
 /* Responsive: tablet */
 @media (min-width: 768px) {
-  .option-select-card {
-    max-width: 320px;
+  .navigator {
     padding: var(--spacing-6x);
   }
 
-  .option-select-card__header {
+  .navigator__header {
     margin-bottom: var(--spacing-4x);
   }
 
-  .option-select-card__list {
+  .navigator__list {
     margin-bottom: var(--spacing-4x);
   }
 
-  .option-select-card__row {
+  .navigator__row {
     padding: var(--rounding-3x) var(--spacing-1x);
   }
 }
 
 /* Responsive: desktop */
 @media (min-width: 1024px) {
-  .option-select-card {
-    max-width: 340px;
+  .navigator {
     padding: var(--spacing-6x);
   }
 }

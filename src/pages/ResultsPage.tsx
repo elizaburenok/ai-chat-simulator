@@ -1,9 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/Button';
-import { UserInfoWidget } from '../../components/UserInfoWidget';
-import { completionReward } from '../../data/completionReward';
-import { getHistoryEntryById } from '../lib/historyStorage';
+import { TopicProgressWidget } from '../../components/TopicProgressWidget';
+import { loadHistoryEntries, getHistoryEntryById } from '../lib/historyStorage';
+import {
+  getTopicProgressFromHistory,
+  getTotalSessionsCompleted,
+  type TopicProgressStats,
+} from '../lib/resultsAggregates';
 import { deriveAnalysisResult, type AnalysisResult, type BlockPoint } from '../types/results';
 import type { BlockScores } from '../types/results';
 import type { Message } from '../types/trainer';
@@ -26,17 +30,26 @@ function SegmentedProgressBar({ score }: { score: BlockPoint }): React.ReactElem
   );
 }
 
-function resolveResult(
-  locationState: unknown,
-  idFromUrl: string | null
-): { result: AnalysisResult; topicNameRu?: string; transcription?: Message[] } | null {
-  const state = locationState as { historyEntryId?: string; result?: AnalysisResult; blockScores?: BlockScores } | null;
+interface ResolvedResult {
+  result: AnalysisResult;
+  topicId?: string;
+  topicNameRu?: string;
+  transcription?: Message[];
+}
+
+function resolveResult(locationState: unknown, idFromUrl: string | null): ResolvedResult | null {
+  const state = locationState as {
+    historyEntryId?: string;
+    result?: AnalysisResult;
+    blockScores?: BlockScores;
+  } | null;
   const historyId = state?.historyEntryId ?? idFromUrl;
   if (historyId) {
     const entry = getHistoryEntryById(historyId);
     if (entry) {
       return {
         result: entry.result,
+        topicId: entry.topicId,
         topicNameRu: entry.topicNameRu,
         transcription: entry.transcription,
       };
@@ -63,11 +76,23 @@ export function ResultsPage(): React.ReactElement {
   const idFromUrl = searchParams.get('id');
 
   const [analysisError, setAnalysisError] = useState(false);
-  const [showTranscription, setShowTranscription] = useState(false);
   const resolved = useMemo(
     () => resolveResult(location.state, idFromUrl),
     [location.state, idFromUrl]
   );
+
+  const historyEntries = useMemo(() => loadHistoryEntries(), []);
+  const totalSessionsCompleted = useMemo(
+    () => getTotalSessionsCompleted(historyEntries),
+    [historyEntries]
+  );
+
+  const topicStats: TopicProgressStats | null = useMemo(() => {
+    if (!resolved?.topicId) {
+      return null;
+    }
+    return getTopicProgressFromHistory(historyEntries, resolved.topicId);
+  }, [historyEntries, resolved?.topicId]);
 
   const handleClose = () => {
     navigate('/');
@@ -79,10 +104,6 @@ export function ResultsPage(): React.ReactElement {
 
   const handleRetry = () => {
     setAnalysisError(false);
-  };
-
-  const handleHistory = () => {
-    navigate('/history');
   };
 
   if (analysisError) {
@@ -103,8 +124,13 @@ export function ResultsPage(): React.ReactElement {
               </div>
             </footer>
           </div>
-          <aside className="results-page__right" aria-label="Данные пользователя">
-            <UserInfoWidget className="results-page__user-widget" />
+          <aside className="results-page__right" aria-label="Прогресс по темам">
+            <TopicProgressWidget
+              topicName={resolved?.topicNameRu}
+              topicStats={topicStats}
+              totalSessionsCompleted={totalSessionsCompleted}
+              className="results-page__user-widget"
+            />
           </aside>
         </div>
       </div>
@@ -126,14 +152,16 @@ export function ResultsPage(): React.ReactElement {
                 <Button type="Primary" onClick={() => navigate('/trainer')}>
                   К тренажёру
                 </Button>
-                <Button type="Secondary" onClick={handleHistory}>
-                  История сессий
-                </Button>
               </div>
             </footer>
           </div>
-          <aside className="results-page__right" aria-label="Данные пользователя">
-            <UserInfoWidget className="results-page__user-widget" />
+          <aside className="results-page__right" aria-label="Прогресс по темам">
+            <TopicProgressWidget
+              topicName={resolved?.topicNameRu}
+              topicStats={topicStats}
+              totalSessionsCompleted={totalSessionsCompleted}
+              className="results-page__user-widget"
+            />
           </aside>
         </div>
       </div>
@@ -141,6 +169,7 @@ export function ResultsPage(): React.ReactElement {
   }
 
   const { result, topicNameRu, transcription } = resolved;
+  const firstClientMessage = transcription?.find((msg) => msg.role === 'client');
 
   return (
     <div className="results-page">
@@ -183,51 +212,17 @@ export function ResultsPage(): React.ReactElement {
               </div>
             </section>
 
-            <section className="results-page__reward" aria-labelledby="results-reward-heading">
-              <h2 id="results-reward-heading" className="results-page__reward-title">
-                Награда за прохождение
-              </h2>
-              <img
-                src={completionReward.image}
-                alt=""
-                width={64}
-                height={64}
-                className="results-page__reward-image"
-              />
-              <p className="results-page__reward-description">{completionReward.description}</p>
-            </section>
-
-            {transcription && transcription.length > 0 && (
-              <section className="results-page__transcription" aria-labelledby="transcription-title">
-                <button
-                  type="button"
-                  id="transcription-title"
-                  className="results-page__transcription-toggle"
-                  onClick={() => setShowTranscription((s) => !s)}
-                  aria-expanded={showTranscription}
-                >
-                  {showTranscription ? 'Скрыть диалог' : 'Просмотр диалога'}
-                </button>
-                {showTranscription && (
-                  <div className="results-page__transcription-content">
-                    {transcription.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`results-page__transcription-msg results-page__transcription-msg--${msg.role}`}
-                      >
-                        <span className="results-page__transcription-role">
-                          {msg.role === 'client' ? 'Клиент' : 'Специалист'}
-                        </span>
-                        <span className="results-page__transcription-meta">
-                          {formatTime(msg.timestamp)}
-                        </span>
-                        <p className="results-page__transcription-body">{msg.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            {firstClientMessage && (
+              <section className="results-page__dialog-info" aria-label="Данные клиента и первичный запрос">
+                <p>Имя: Ольга Семёнова</p>
+                <p>Тип доступности: Обычный</p>
+                <p>Бизнес: ИП</p>
+                <p>Система налогообложения: УСН</p>
+                <p>Первичный запрос клиента: {firstClientMessage.content}</p>
               </section>
             )}
+
+            {/* Диалог больше не отображается на этой странице по требованиям */}
           </div>
 
           <footer className="results-page__footer" aria-label="Действия страницы">
@@ -238,15 +233,18 @@ export function ResultsPage(): React.ReactElement {
               <Button type="Secondary" onClick={handleNewSession} data-testid="results-new-session">
                 Новая сессия
               </Button>
-              <Button type="Secondary" onClick={handleHistory}>
-                История сессий
-              </Button>
             </div>
           </footer>
         </div>
 
-        <aside className="results-page__right" aria-label="Данные пользователя">
-          <UserInfoWidget className="results-page__user-widget" />
+        <aside className="results-page__right" aria-label="Прогресс по темам">
+          <TopicProgressWidget
+            topicName={topicNameRu}
+            topicStats={topicStats}
+            totalSessionsCompleted={totalSessionsCompleted}
+            className="results-page__user-widget"
+            showCompletionReward
+          />
         </aside>
       </div>
     </div>

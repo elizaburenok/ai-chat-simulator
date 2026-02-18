@@ -13,6 +13,17 @@
   margin: 0 auto;
 }
 
+.history-page__chart {
+  margin-bottom: var(--spacing-8x);
+}
+
+.history-page__chart-title {
+  margin: 0 0 var(--spacing-m);
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
 .history-page__title {
   margin: 0 0 var(--spacing-8x);
   font-size: var(--font-size-m);

@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { OptionSelectCard, type OptionSelectCardItem } from './OptionSelectCard';
+import { Navigator, type NavigatorItem } from './Navigator';
 
-const defaultItems: OptionSelectCardItem[] = [
+const defaultItems: NavigatorItem[] = [
   { id: 'm', label: 'Text M', avatarLetter: 'T' },
   { id: 'l', label: 'Text L', avatarLetter: 'T' },
   { id: 's', label: 'Text S', avatarLetter: 'T' },
 ];
 
 /**
- * Playground for OptionSelectCard — test in isolation.
- * Route: /playground/option-select-card
+ * Playground for Navigator — test in isolation.
+ * Route: /playground/navigator
  */
-export function OptionSelectCardPlayground(): React.ReactElement {
+export function NavigatorPlayground(): React.ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>('m');
   const [lastAction, setLastAction] = useState<string>('');
 
@@ -27,7 +27,7 @@ export function OptionSelectCardPlayground(): React.ReactElement {
       }}
     >
       <h1 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: 600, color: '#191919' }}>
-        OptionSelectCard — Playground
+        Navigator — Playground
       </h1>
       <p style={{ color: '#676767', marginBottom: '24px', fontSize: '14px' }}>
         Header + radio list + confirm button. Hover rows and button to see states.
@@ -37,7 +37,7 @@ export function OptionSelectCardPlayground(): React.ReactElement {
         <h2 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: '#191919' }}>
           Default (with header click)
         </h2>
-        <OptionSelectCard
+        <Navigator
           title="Text XL"
           items={defaultItems}
           selectedId={selectedId}
@@ -55,7 +55,7 @@ export function OptionSelectCardPlayground(): React.ReactElement {
         <h2 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: '#191919' }}>
           No header click (title only)
         </h2>
-        <OptionSelectCard
+        <Navigator
           title="Choose size"
           items={defaultItems}
           selectedId={selectedId}
@@ -69,7 +69,7 @@ export function OptionSelectCardPlayground(): React.ReactElement {
         <h2 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: '#191919' }}>
           Custom avatar colors
         </h2>
-        <OptionSelectCard
+        <Navigator
           title="Variants"
           items={[
             { id: 'a', label: 'Option A', avatarLetter: 'A', avatarBgColor: '#d6cef3', avatarLetterColor: '#835de1' },
@@ -101,4 +101,4 @@ export function OptionSelectCardPlayground(): React.ReactElement {
   );
 }
 
-export default OptionSelectCardPlayground;
+export default NavigatorPlayground;
