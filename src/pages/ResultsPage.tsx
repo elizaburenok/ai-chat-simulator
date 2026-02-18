@@ -157,7 +157,7 @@ export function ResultsPage(): React.ReactElement {
           </div>
           <aside className="results-page__right" aria-label="Прогресс по темам">
             <TopicProgressWidget
-              topicName={resolved?.topicNameRu}
+              topicName={undefined}
               topicStats={topicStats}
               totalSessionsCompleted={totalSessionsCompleted}
               className="results-page__user-widget"
