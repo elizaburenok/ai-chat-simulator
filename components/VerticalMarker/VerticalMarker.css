@@ -56,10 +56,10 @@
 /* Bar fill (solid) */
 .vertical-marker__bar-fill {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: auto;
+  top: auto;
   background-color: var(--color-bg-brand-2, #e2ddf6);
   border-radius: var(--rounding-1-5x, 6px);
   width: 100%;

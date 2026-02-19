@@ -336,7 +336,7 @@ export function TrainerPage(): React.ReactElement {
                     }
                   >
                     <div className="trainer-page__recent-topics">
-                      {sessionsByTopic.map(({ topicId, topicNameRu, count }) => {
+                      {sessionsByTopic.slice(0, 3).map(({ topicId, topicNameRu, count }) => {
                         const topicMeta = topicsData.find((t) => t.id === topicId);
                         const faceIcon = topicMeta ? getTopicFaceIcon(topicMeta) : HappyFaceIcon;
 

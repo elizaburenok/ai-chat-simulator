@@ -77,6 +77,13 @@
   color: var(--color-primitive-primary);
 }
 
+.results-page__score {
+  margin: 0 0 var(--spacing-m);
+  font-size: var(--font-size-l);
+  font-weight: var(--font-weight-demi-bold);
+  color: var(--color-primitive-primary);
+}
+
 .results-page__topic {
   margin: 0 0 var(--spacing-m);
   font-size: var(--font-size-xs);

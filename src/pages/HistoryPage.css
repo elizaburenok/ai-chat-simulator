@@ -3,14 +3,42 @@
  */
 
 .history-page {
-  padding: var(--spacing-6x);
+  display: flex;
+  min-height: 100vh;
   font-family: var(--font-family-primary);
   color: var(--color-primitive-primary);
+  background-color: var(--color-bg-default);
 }
 
 .history-page__content {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+  overflow: hidden;
+  gap: var(--spacing-6x);
+}
+
+/* Left column: navigation bar (like TrainerPage / WelcomeContent) */
+.history-page__content-left {
+  flex-shrink: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.history-page__content-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: auto;
+  padding: var(--spacing-6x) var(--spacing-6x) var(--spacing-6x) 0;
+}
+
+.history-page__main {
   max-width: 720px;
-  margin: 0 auto;
 }
 
 .history-page__chart {

@@ -178,6 +178,9 @@ export function ResultsPage(): React.ReactElement {
         <div className="results-page__main">
           <div className="results-page__scroll">
             <h1 className="results-page__title">Результаты</h1>
+            <p className="results-page__score" aria-label="Оценка диалога">
+              Оценка: {Math.round((result.block1.score + result.block2.score + result.block3.score) / 3)} из 5
+            </p>
             {topicNameRu && (
               <p className="results-page__topic" aria-label="Тема">
                 Тема: {topicNameRu}
